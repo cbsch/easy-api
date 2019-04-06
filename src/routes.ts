@@ -34,7 +34,6 @@ export default function routeFactory(options?: RouteFactoryOptions) {
     options.middleware.put = options.middleware.put || nullMiddlewareGenerator
     options.middleware.delete = options.middleware.delete || nullMiddlewareGenerator
 
-
     return function generate(model: GeneratedModel<any>): express.Router {
         const router = express.Router()
         const def = model.definition
