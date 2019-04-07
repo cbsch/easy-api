@@ -35,7 +35,7 @@ export interface GeneratedModel<T> {
     drop: () => void;
     insert: (data: T) => Promise<T>;
     delete: (id: number) => Promise<T>;
-    find: (args?: SelectArgs) => Promise<T[]>;
+    find: (query?: string) => Promise<T[]>;
     update: (data: T) => Promise<T>;
 }
 export declare function generateCreateColumn(def: Column): string;
@@ -50,7 +50,12 @@ export interface SelectArgs {
         op: string;
         value: string | number | Date;
     }[];
+    in?: {
+        column: string;
+        values: string[] | number[] | Date[];
+    };
 }
+export declare function queryToObject(string?: string): SelectArgs;
 export declare function generateSelect<T>(def: Table<T>, args?: SelectArgs): string;
 export declare function modelWrapper(db: Database<{}>): <T>(def: Table<T>) => GeneratedModel<T>;
 export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedModel<T>;

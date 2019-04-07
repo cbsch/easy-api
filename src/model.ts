@@ -1,6 +1,9 @@
 import { IDatabase as Database } from 'pg-promise'
 import * as events from 'events'
 import * as debugFactory from 'debug'
+
+import * as querystring from 'querystring'
+
 const debug = debugFactory('app:model:generator')
 
 //import generatedModel from '../../model/model'
@@ -51,8 +54,8 @@ export interface GeneratedModel<T> {
 
     insert: (data: T) => Promise<T>,
     delete: (id: number) => Promise<T>,
-    find: (args?: SelectArgs) => Promise<T[]>,
-    update: (data: T) => Promise<T> 
+    find: (query?: string) => Promise<T[]>,
+    update: (data: T) => Promise<T>
 }
 
 export function generateCreateColumn(def: Column) {
@@ -148,6 +151,51 @@ export interface SelectArgs {
         column: string, 
         op: string, 
         value: string | number | Date }[]
+    in?: { column: string, values: string[] | number[] | Date[] }
+}
+
+export function queryToObject(string?: string): SelectArgs {
+
+    if (!string) { return undefined }
+
+    const query: any = querystring.parse(string)
+
+    let args: SelectArgs = {}
+    if (query && query['filters']) {
+        args.filters = []
+        let filterList = query['filters'].split(',')
+        for (const filter of filterList) {
+            let op = filter.match('=') ? '=' : 
+                filter.match('>') ? '>' : 
+                filter.match('<') ? '<' : 
+                filter.match(/\[/) ? '[' : undefined
+            if (!op) { continue }
+
+            if (op === '[') {
+                let values = filter.split(op)[1].split(']')[0].split(';')
+                args.in = {
+                    column: filter.split(op)[0],
+                    values: values
+                }
+            } else {
+                let column = filter.split(op)[0]
+                let value = filter.split(op)[1]
+
+                args.filters.push({
+                    column: column,
+                    op: op,
+                    value: value
+                })
+
+            }
+        }
+    }
+
+    if (query && undefined !== query['relations']) {
+        args.relations = true
+    }
+
+    return args
 }
 
 export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
@@ -198,22 +246,30 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
     /*
         Creating WHERE .. AND ..
     */
-    var filterText
+    let filterText
+    let filterLines: string[] = []
     if (args && args.filters) {
-        const filterLines = args.filters.map(c => {
+        filterLines = [...args.filters.map(c => {
             if (!c.op.match(/[<>=]/g)) {
                 throw `Invalid operator ${c.op}`
             }
             return `${def.name}.${c.column} ${c.op} $[${c.column}]`
-        })
-
-        filterText = filterLines.join(' AND ')
+        })]
     }
 
-    if (filterText) {
+    if (args && args.in) {
+        filterLines = [...filterLines, 
+            `${args.in.column} IN (${args.in.values.join(', ')})`
+        ]
+    }
+
+    if (filterLines.length > 0) {
+        filterText = filterLines.join(' AND ')
         sqlText += `WHERE ${filterText}`
     }
     sqlText += ';'
+
+    console.log(sqlText)
 
     return sqlText
 }
@@ -223,7 +279,7 @@ export function modelWrapper(db: Database<{}>) {
         throw "db object not initialized"
     }
 
-    return function<T>(def: Table<T>) {
+    return function<T>(def: Table<T>): GeneratedModel<T> {
         return model<T>(db, def)
     }
 }
@@ -257,7 +313,6 @@ export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedMode
         delete: deleteFactory<T>(db, def),
         find: findFactory<T>(db, def),
         update: updateFactory<T>(db, def)
-
     }
 }
 
@@ -334,11 +389,14 @@ function createFactory<T>(db: Database<{}>, def: Table<T>): () => Promise<void> 
     }
 }
 
-function findFactory<T>(db: Database<{}>, def: Table<T>): (args?: SelectArgs) => Promise<T[]> {
-    return (args?: SelectArgs) => {
+function findFactory<T>(db: Database<{}>, def: Table<T>): (query?: string) => Promise<T[]> {
+    return (query?: string) => {
         return new Promise<T[]>(async (resolve, reject) => {
             try {
                 debug(`find called on ${def.name}`)
+
+                const args = queryToObject(query)
+
                 const sqlText = generateSelect(def, args)
                 var obj: any = {}
                 if (args && args.filters) {

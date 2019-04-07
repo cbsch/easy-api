@@ -8,6 +8,32 @@ describe('Dummy Test', () => {
         const columnSql = model.generateCreateColumn({name: 'test', type: 'string'})
 
         expect(columnSql).to.equal('    test TEXT')
-    })
-
+    });
 });
+
+describe('query to object', () => {
+    it('should handle lists', () => {
+        const obj = model.queryToObject('filters=name[100;101]')
+
+        expect(obj).to.haveOwnProperty('in')
+    })
+});
+
+const testTable = {
+    name: 'testTable',
+    columns: [{
+        name: 'id',
+        type: 'number'
+    }, {
+        name: 'name',
+        type: 'string'
+    }]
+}
+
+describe('generateSelect', () => {
+    it('should return sql', () => {
+        const obj = model.queryToObject('filters=name[100;101]')
+        const sql = model.generateSelect(testTable, obj)
+        console.log(sql)
+    })
+})

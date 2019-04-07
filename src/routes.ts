@@ -44,30 +44,14 @@ export default function routeFactory(options?: RouteFactoryOptions) {
         router.get(`/${def.name}`, middleware.get(def.name), async (req, res) => {
             try {
                 debug(`GET ${def.name}`)
-                let args: SelectArgs = {}
-                if (req.query && req.query['filters']) {
-                    args.filters = []
-                    let filterList = req.query['filters'].split(',')
-                    for (const filter of filterList) {
-                        let op = filter.match('=') ? '=' : filter.match('>') ? '>' : filter.match('<') ? '<' : undefined
-                        if (!op) { continue }
 
-                        let column = filter.split(op)[0]
-                        let value = filter.split(op)[1]
-
-                        args.filters.push({
-                            column: column,
-                            op: op,
-                            value: value
-                        })
-                    }
+                const split = req.url.split('?')
+                let query = ''
+                if (split.length > 1) {
+                    query = split[1]
                 }
 
-                if (req.query && undefined !== req.query['relations']) {
-                    args.relations = true
-                }
-
-                const result = await model.find(args)
+                const result = await model.find(query)
                 return res.status(200).json({
                     status: 'ok',
                     data: result,

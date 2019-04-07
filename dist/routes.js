@@ -60,35 +60,18 @@ function routeFactory(options) {
         var middleware = options.middleware;
         debug("generating routes for " + model.definition.name);
         router.get("/" + def.name, middleware.get(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var args, filterList, _i, filterList_1, filter, op, column, value, result, err_1;
+            var split, query, result, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         debug("GET " + def.name);
-                        args = {};
-                        if (req.query && req.query['filters']) {
-                            args.filters = [];
-                            filterList = req.query['filters'].split(',');
-                            for (_i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
-                                filter = filterList_1[_i];
-                                op = filter.match('=') ? '=' : filter.match('>') ? '>' : filter.match('<') ? '<' : undefined;
-                                if (!op) {
-                                    continue;
-                                }
-                                column = filter.split(op)[0];
-                                value = filter.split(op)[1];
-                                args.filters.push({
-                                    column: column,
-                                    op: op,
-                                    value: value
-                                });
-                            }
+                        split = req.url.split('?');
+                        query = '';
+                        if (split.length > 1) {
+                            query = split[1];
                         }
-                        if (req.query && undefined !== req.query['relations']) {
-                            args.relations = true;
-                        }
-                        return [4, model.find(args)];
+                        return [4, model.find(query)];
                     case 1:
                         result = _a.sent();
                         return [2, res.status(200).json({

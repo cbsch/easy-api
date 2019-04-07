@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var events = require("events");
 var debugFactory = require("debug");
+var querystring = require("querystring");
 var debug = debugFactory('app:model:generator');
 var generatedModel = {};
 function useModel(model) {
@@ -144,6 +145,48 @@ function generateUpdate(def, data) {
     return sqlText;
 }
 exports.generateUpdate = generateUpdate;
+function queryToObject(string) {
+    if (!string) {
+        return undefined;
+    }
+    var query = querystring.parse(string);
+    var args = {};
+    if (query && query['filters']) {
+        args.filters = [];
+        var filterList = query['filters'].split(',');
+        for (var _i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
+            var filter = filterList_1[_i];
+            var op = filter.match('=') ? '=' :
+                filter.match('>') ? '>' :
+                    filter.match('<') ? '<' :
+                        filter.match(/\[/) ? '[' : undefined;
+            if (!op) {
+                continue;
+            }
+            if (op === '[') {
+                var values = filter.split(op)[1].split(']')[0].split(';');
+                args.in = {
+                    column: filter.split(op)[0],
+                    values: values
+                };
+            }
+            else {
+                var column = filter.split(op)[0];
+                var value = filter.split(op)[1];
+                args.filters.push({
+                    column: column,
+                    op: op,
+                    value: value
+                });
+            }
+        }
+    }
+    if (query && undefined !== query['relations']) {
+        args.relations = true;
+    }
+    return args;
+}
+exports.queryToObject = queryToObject;
 function generateSelect(def, args) {
     var columns;
     if (args && args.columns) {
@@ -178,19 +221,24 @@ function generateSelect(def, args) {
         sqlText += joinText;
     }
     var filterText;
+    var filterLines = [];
     if (args && args.filters) {
-        var filterLines = args.filters.map(function (c) {
+        filterLines = args.filters.map(function (c) {
             if (!c.op.match(/[<>=]/g)) {
                 throw "Invalid operator " + c.op;
             }
             return def.name + "." + c.column + " " + c.op + " $[" + c.column + "]";
-        });
-        filterText = filterLines.join(' AND ');
+        }).slice();
     }
-    if (filterText) {
+    if (args && args.in) {
+        filterLines = filterLines.concat([args.in.column + " IN (" + args.in.values.join(', ') + ")"]);
+    }
+    if (filterLines.length > 0) {
+        filterText = filterLines.join(' AND ');
         sqlText += "WHERE " + filterText;
     }
     sqlText += ';';
+    console.log(sqlText);
     return sqlText;
 }
 exports.generateSelect = generateSelect;
@@ -356,14 +404,15 @@ function createFactory(db, def) {
 }
 function findFactory(db, def) {
     var _this = this;
-    return function (args) {
+    return function (query) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var sqlText, obj, result, err_6;
+            var args, sqlText, obj, result, err_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         debug("find called on " + def.name);
+                        args = queryToObject(query);
                         sqlText = generateSelect(def, args);
                         obj = {};
                         if (args && args.filters) {
