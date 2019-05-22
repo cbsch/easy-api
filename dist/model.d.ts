@@ -1,11 +1,10 @@
 /// <reference types="node" />
 import { IDatabase as Database } from 'pg-promise';
 import * as events from 'events';
-export declare function useModel(model: {
-    [key: string]: any;
-}): {
+declare let generatedModel: {
     [key: string]: any;
 };
+export { generatedModel };
 declare const emitter: events.EventEmitter;
 export { emitter };
 export interface Table<T> {
@@ -18,7 +17,7 @@ export interface SqlHooks<T> {
     postBefore?: (data: T) => void;
     postAfter?: (data: T) => void;
 }
-export declare type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean";
+export declare type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean" | "float";
 export interface Column {
     name: string;
     type: Types;

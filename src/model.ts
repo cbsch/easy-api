@@ -4,16 +4,11 @@ import * as debugFactory from 'debug'
 
 import * as querystring from 'querystring'
 
-const debug = debugFactory('app:model:generator')
-
-//import generatedModel from '../../model/model'
+const debug = debugFactory('easy-api:model:generator')
 
 let generatedModel: {[key:string]: any} = {}
 
-export function useModel(model: {[key:string]: any}) {
-    generatedModel = model
-    return model
-}
+export { generatedModel }
 
 const emitter = new events.EventEmitter()
 emitter.setMaxListeners(500)
@@ -34,7 +29,7 @@ export interface SqlHooks<T> {
 
 const joinTableColumnSplit = '___'
 
-export type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean"
+export type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean" | "float"
 
 export interface Column {
     name: string
@@ -72,6 +67,7 @@ export function generateCreateColumn(def: Column) {
         def.type === "date" ? 'TIMESTAMP' :
         def.type === "serial" ? 'SERIAL' :
         def.type === "boolean" ? 'BOOLEAN' :
+        def.type === "float" ? 'REAL' :
         def.type === "reference" ? `INTEGER REFERENCES ${def.reference}(id)` : ''
 
     if (type === '') throw `No type for column ${def.name}`
@@ -269,8 +265,6 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
     }
     sqlText += ';'
 
-    console.log(sqlText)
-
     return sqlText
 }
 
@@ -302,8 +296,7 @@ export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedMode
         reference: c.reference ? c.reference : c.type === "reference" ? c.name : null
     }})
 
-
-    return {
+    const model = {
         definition: def,
         createText: generateCreateTable(def),
         create: createFactory<T>(db, def),
@@ -314,6 +307,10 @@ export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedMode
         find: findFactory<T>(db, def),
         update: updateFactory<T>(db, def)
     }
+
+    generatedModel[def.name] = model
+
+    return model
 }
 
 function deleteFactory<T>(db: Database<{}>, def: Table<T>): (id: number) => Promise<T> {

@@ -27,6 +27,10 @@ function generateInterfaceText(table) {
                 code.addln(column.name + "?: number");
                 break;
             }
+            case 'float': {
+                code.addln(column.name + "?: number");
+                break;
+            }
             default: {
                 code.addln(column.name + "?: " + column.type);
             }

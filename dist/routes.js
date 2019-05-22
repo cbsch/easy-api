@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var debugFactory = require("debug");
-var debug = debugFactory('fast-rest:routes');
+var debug = debugFactory('easy-api:routes');
 function useRoutes(model) {
     var router = express.Router();
     var route = routeFactory();

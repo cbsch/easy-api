@@ -49,13 +49,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var events = require("events");
 var debugFactory = require("debug");
 var querystring = require("querystring");
-var debug = debugFactory('app:model:generator');
+var debug = debugFactory('easy-api:model:generator');
 var generatedModel = {};
-function useModel(model) {
-    generatedModel = model;
-    return model;
-}
-exports.useModel = useModel;
+exports.generatedModel = generatedModel;
 var emitter = new events.EventEmitter();
 exports.emitter = emitter;
 emitter.setMaxListeners(500);
@@ -73,7 +69,8 @@ function generateCreateColumn(def) {
             def.type === "date" ? 'TIMESTAMP' :
                 def.type === "serial" ? 'SERIAL' :
                     def.type === "boolean" ? 'BOOLEAN' :
-                        def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
+                        def.type === "float" ? 'REAL' :
+                            def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
     if (type === '')
         throw "No type for column " + def.name;
     sqlString += " " + type;
@@ -238,7 +235,6 @@ function generateSelect(def, args) {
         sqlText += "WHERE " + filterText;
     }
     sqlText += ';';
-    console.log(sqlText);
     return sqlText;
 }
 exports.generateSelect = generateSelect;
@@ -263,7 +259,7 @@ function model(db, def) {
     def.columns = def.columns.map(function (c) {
         return __assign({}, c, { reference: c.reference ? c.reference : c.type === "reference" ? c.name : null });
     });
-    return {
+    var model = {
         definition: def,
         createText: generateCreateTable(def),
         create: createFactory(db, def),
@@ -273,6 +269,8 @@ function model(db, def) {
         find: findFactory(db, def),
         update: updateFactory(db, def)
     };
+    generatedModel[def.name] = model;
+    return model;
 }
 exports.default = model;
 function deleteFactory(db, def) {

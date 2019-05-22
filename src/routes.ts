@@ -1,7 +1,7 @@
 
 import * as express from 'express';
 import * as debugFactory from 'debug'
-const debug = debugFactory('fast-rest:routes')
+const debug = debugFactory('easy-api:routes')
 
 import { GeneratedModel, SelectArgs } from './model'
 
