@@ -11,12 +11,15 @@ export default function generateCode(language: Languages, path: string) {
     switch(language) {
         case "csharp": {
             generate_csharp(models, path)
+            break;
         }
         case "powershell": {
             generate_powershell(models, path)
+            break;
         }
         case "typescript": {
             generate_typescript(models, path)
+            break;
         }
     }
 }
