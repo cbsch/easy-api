@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/cbsch/easy-api.git"
   },
-  "author": "",
+  "author": "Christopher Berg Schwanstrøm <cbs@netscenario.no>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cbsch/easy-api/issues"
