@@ -9,12 +9,15 @@ function generateCode(language, path) {
     switch (language) {
         case "csharp": {
             generate_csharp_1.default(models, path);
+            break;
         }
         case "powershell": {
             generate_powershell_1.default(models, path);
+            break;
         }
         case "typescript": {
             generate_typescript_1.default(models, path);
+            break;
         }
     }
 }
