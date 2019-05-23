@@ -1,7 +1,7 @@
 {
   "name": "easy-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Code generation library for quickly creating rest-like API and clients",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
