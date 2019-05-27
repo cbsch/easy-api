@@ -21,6 +21,10 @@ export default function generateCode(models: GeneratedModel<any>[], path: string
     })
     code.unindent().addln('}').addln('')
 
+    code.addln('Function Get-TenantPortalApiEndpoint {').indent()
+    code.addln('return [Api]::new()')
+    code.unindent().addln('}')
+
     writeFileSync(path, code.get())
 }
 
