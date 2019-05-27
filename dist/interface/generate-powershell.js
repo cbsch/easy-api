@@ -16,6 +16,9 @@ function generateCode(models, path) {
         code.addln("static [" + name + "_endpoint]$" + name + " = (New-Object " + name + "_endpoint)");
     });
     code.unindent().addln('}').addln('');
+    code.addln('Function Get-TenantPortalApiEndpoint {').indent();
+    code.addln('return [Api]::new()');
+    code.unindent().addln('}');
     fs_1.writeFileSync(path, code.get());
 }
 exports.default = generateCode;
