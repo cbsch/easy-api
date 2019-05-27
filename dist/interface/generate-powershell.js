@@ -13,7 +13,7 @@ function generateCode(models, path) {
     code.addln('class Api {').indent();
     models.map(function (model) {
         var name = model.definition.name;
-        code.addln("static [" + name + "_endpoint]$" + name + " = (New-Object " + name + "_endpoint)");
+        code.addln("[" + name + "_endpoint]$" + name + " = (New-Object " + name + "_endpoint)");
     });
     code.unindent().addln('}').addln('');
     code.addln('Function Get-TenantPortalApiEndpoint {').indent();
