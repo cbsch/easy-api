@@ -17,7 +17,7 @@ export default function generateCode(models: GeneratedModel<any>[], path: string
     code.addln('class Api {').indent()
     models.map(model => {
         const name = model.definition.name
-        code.addln(`static [${name}_endpoint]$${name} = (New-Object ${name}_endpoint)`)
+        code.addln(`[${name}_endpoint]$${name} = (New-Object ${name}_endpoint)`)
     })
     code.unindent().addln('}').addln('')
 
