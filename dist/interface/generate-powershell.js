@@ -67,7 +67,7 @@ function generateModelClass(table) {
                 break;
             }
             case 'number': {
-                code.addln("[int]$" + column.name);
+                code.addln("[nullable[int]]$" + column.name);
                 break;
             }
             case 'string': {
