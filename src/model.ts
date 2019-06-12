@@ -64,7 +64,7 @@ export function generateCreateColumn(def: Column) {
     const type = 
         def.type === "number" ? 'INTEGER' :
         def.type === "string" ? 'TEXT' :
-        def.type === "date" ? 'TIMESTAMP' :
+        def.type === "date" ? 'TIMESTAMP WITH TIME ZONE' :
         def.type === "serial" ? 'SERIAL' :
         def.type === "boolean" ? 'BOOLEAN' :
         def.type === "float" ? 'REAL' :
