@@ -181,6 +181,9 @@ function queryToObject(string) {
     if (query && undefined !== query['relations']) {
         args.relations = true;
     }
+    if (query && undefined !== query['orderby']) {
+        args.orderby = query['orderby'].split(',');
+    }
     return args;
 }
 exports.queryToObject = queryToObject;
@@ -232,7 +235,10 @@ function generateSelect(def, args) {
     }
     if (filterLines.length > 0) {
         filterText = filterLines.join(' AND ');
-        sqlText += "WHERE " + filterText;
+        sqlText += "WHERE " + filterText + "\n";
+    }
+    if (args && args.orderby) {
+        sqlText += "ORDER BY " + args.orderby.join(', ') + "\n";
     }
     sqlText += ';';
     return sqlText;

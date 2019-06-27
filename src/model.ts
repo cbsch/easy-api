@@ -147,7 +147,8 @@ export interface SelectArgs {
         column: string, 
         op: string, 
         value: string | number | Date }[]
-    in?: { column: string, values: string[] | number[] | Date[] }
+    in?: { column: string, values: string[] | number[] | Date[] },
+    orderby?: string[]
 }
 
 export function queryToObject(string?: string): SelectArgs {
@@ -189,6 +190,9 @@ export function queryToObject(string?: string): SelectArgs {
 
     if (query && undefined !== query['relations']) {
         args.relations = true
+    }
+    if (query && undefined !== query['orderby']) {
+        args.orderby = query['orderby'].split(',')
     }
 
     return args
@@ -261,8 +265,18 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
 
     if (filterLines.length > 0) {
         filterText = filterLines.join(' AND ')
-        sqlText += `WHERE ${filterText}`
+        sqlText += `WHERE ${filterText}\n`
     }
+
+    /*
+        Creating ORDER BY ..
+    */
+
+    if (args && args.orderby) {
+        sqlText += `ORDER BY ${args.orderby.join(', ')}\n`
+    }
+
+
     sqlText += ';'
 
     return sqlText

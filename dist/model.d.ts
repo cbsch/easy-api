@@ -53,6 +53,7 @@ export interface SelectArgs {
         column: string;
         values: string[] | number[] | Date[];
     };
+    orderby?: string[];
 }
 export declare function queryToObject(string?: string): SelectArgs;
 export declare function generateSelect<T>(def: Table<T>, args?: SelectArgs): string;
