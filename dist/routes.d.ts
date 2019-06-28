@@ -1,3 +1,4 @@
+/// <reference types="express" />
 /// <reference types="express-serve-static-core" />
 import * as express from 'express';
 import { GeneratedModel } from './model';

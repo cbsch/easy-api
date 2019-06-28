@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const index = require('../dist/index');
-
 const model = require('../dist/model');
+const queryModule = require('../dist/query');
 
 describe('Dummy Test', () => {
     it('should return correctl sql', () => {
@@ -40,7 +40,7 @@ const testTable = {
         name: 'name',
         type: 'string'
     }]
-}
+};
 
 describe('generateSelect', () => {
     it('should return sql', () => {
@@ -62,5 +62,16 @@ WHERE name IN (100, 101)
 FROM testTable
 ORDER BY name desc, id asc
 ;`);
+    });
+});
+
+describe('queryBuilder', () => {
+    it('should do stuff', () => {
+
+        let queryBuilder = queryModule.queryBuilderFactory(testTable);
+        let query = queryBuilder().filter.name.eq('test').orderby.id.asc();
+
+        expect(query.get()).to.equal('?filters=name=test&id asc');
+
     });
 });

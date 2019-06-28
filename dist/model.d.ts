@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { IDatabase as Database } from 'pg-promise';
 import * as events from 'events';
 declare let generatedModel: {

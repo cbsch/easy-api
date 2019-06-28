@@ -1,10 +1,20 @@
-interface QueryBuilder {
-    name: QueryBuilderValue<string>;
-    id: QueryBuilderValue<number>;
+import { Table } from "./model";
+export interface QueryBuilder {
+    filter: {
+        [index: string]: Filter<string | number>;
+    };
+    orderby: {
+        [index: string]: OrderBy;
+    };
+    relations: () => QueryBuilder;
     get: () => string;
 }
-interface QueryBuilderValue<T> {
+export interface Filter<T> {
     eq: (value: T) => QueryBuilder;
     in: (value: T[]) => QueryBuilder;
 }
-declare const testFilter: () => QueryBuilder;
+export interface OrderBy {
+    asc: () => QueryBuilder;
+    desc: () => QueryBuilder;
+}
+export declare function queryBuilderFactory<T>(table: Table<T>): () => QueryBuilder;
