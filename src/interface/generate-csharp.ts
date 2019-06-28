@@ -1,6 +1,6 @@
 import { Table, GeneratedModel } from "..";
 import { writeFileSync } from "fs";
-import getCodeBuilder from "./codebuilder";
+import getCodeBuilder, { CodeBuilder } from "./codebuilder";
 
 
 export default function generateCode(models: GeneratedModel<any>[], path: string) {
