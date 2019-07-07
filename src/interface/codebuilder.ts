@@ -2,7 +2,7 @@
 
 export interface CodeBuilder {
     add: (text: string) => CodeBuilder,
-    addln: (text: string) => CodeBuilder,
+    addln: (text?: string) => CodeBuilder,
     addcontainer: (container: CodeBuilder) => CodeBuilder,
     indent: () => CodeBuilder,
     unindent: () => CodeBuilder,
@@ -16,7 +16,7 @@ export default function getCodeBuilder(): CodeBuilder {
 
     const obj = {
         add: (text: string) => { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + text; return obj},
-        addln: (text: string) => { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + text + '\n'; return obj},
+        addln: (text?: string) => { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + (text ? text : '') + '\n'; return obj},
         addcontainer: (container: CodeBuilder) => { 
             container.get().split('\n').map(s => obj.addln(s))
             return obj

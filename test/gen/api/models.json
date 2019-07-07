@@ -1,0 +1,81 @@
+[
+  {
+    "name": "login",
+    "columns": [
+      {
+        "name": "id",
+        "type": "serial",
+        "pk": true,
+        "reference": null
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "reference": null
+      }
+    ]
+  },
+  {
+    "name": "audit",
+    "audit": "login",
+    "columns": [
+      {
+        "name": "id",
+        "type": "serial",
+        "pk": true,
+        "reference": null
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "reference": null
+      },
+      {
+        "name": "created_by",
+        "type": "reference",
+        "reference": "login",
+        "_reference_alias": "login0"
+      },
+      {
+        "name": "modified_by",
+        "type": "reference",
+        "reference": "login",
+        "_reference_alias": "login1"
+      }
+    ]
+  },
+  {
+    "name": "complex",
+    "audit": "login",
+    "columns": [
+      {
+        "name": "id",
+        "type": "serial",
+        "pk": true,
+        "reference": null
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "reference": null
+      },
+      {
+        "name": "value",
+        "type": "number",
+        "reference": null
+      },
+      {
+        "name": "created_by",
+        "type": "reference",
+        "reference": "login",
+        "_reference_alias": "login0"
+      },
+      {
+        "name": "modified_by",
+        "type": "reference",
+        "reference": "login",
+        "_reference_alias": "login1"
+      }
+    ]
+  }
+]

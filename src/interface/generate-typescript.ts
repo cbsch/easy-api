@@ -1,16 +1,19 @@
 import { Table, GeneratedModel } from "..";
 import { writeFileSync } from "fs";
-import getCodeBuilder, { CodeBuilder } from "./codebuilder";
+import getCodeBuilder from "./codebuilder";
 
+export default function writeCodeFile(models: GeneratedModel<any>[], path: string) {
+    writeFileSync(path, generateCode(models))
+}
 
-export default function generateCode(models: GeneratedModel<any>[], path: string) {
+export function generateCode(models: GeneratedModel<any>[]) {
     const code = getCodeBuilder()
 
     models.forEach(model => {
         code.addcontainer(generateInterfaceText(model.definition))
     })
 
-    writeFileSync(path, code.get())
+    return code.get()
 }
 
 export function generateInterfaceText(table: Table<any>) {

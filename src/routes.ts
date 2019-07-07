@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as debugFactory from 'debug'
 const debug = debugFactory('easy-api:routes')
 
-import { GeneratedModel, SelectArgs } from './model'
+import { GeneratedModel } from '.'
 
 export type ExpressMiddleware = (name: string) => (req: express.Request, res: Express.Response, next: express.NextFunction) => Promise<void | express.Response> | void
 
@@ -13,13 +13,17 @@ export interface RouteFactoryOptions {
         post?: ExpressMiddleware
         put?: ExpressMiddleware
         delete?: ExpressMiddleware
-    }
+    },
+    getUserId?: (req: express.Request) => Promise<number>
 }
 
-export function useRoutes(model: {[key: string]: GeneratedModel<{}>}): express.Router {
+export function useRoutes(model: {[key: string]: GeneratedModel<any>}, options?: RouteFactoryOptions): express.Router {
     const router = express.Router()
-    const route = routeFactory()
-    Object.keys(model).map(m => router.use('/', route((model as any)[m])))
+    const route = routeFactory(options)
+
+    Object.keys(model).map(m => {
+        router.use('/', route((model as any)[m]))
+    })
     return router
 }
 
@@ -40,6 +44,9 @@ export default function routeFactory(options?: RouteFactoryOptions) {
         const middleware = options.middleware
 
         debug(`generating routes for ${model.definition.name}`)
+        if (model.definition.audit && !options.getUserId) {
+            throw `model ${model.definition.name} has audit enabled, but no getUserId function is specified in options`
+        }
 
         router.get(`/${def.name}`, middleware.get(def.name), async (req, res) => {
             try {
@@ -63,10 +70,17 @@ export default function routeFactory(options?: RouteFactoryOptions) {
             }
         })
 
-        router.post(`/${def.name}`, middleware.post(def.name) , async (req, res) => {
+        router.post(`/${def.name}`, middleware.post(def.name), async (req, res) => {
             try {
                 debug(`POST ${def.name}`)
                 const data = req.body
+
+                if (model.definition.audit) {
+                    const userId = await options.getUserId(req)
+                    data['modified_by_id'] = userId
+                    data['created_by_id'] = userId
+                }
+
                 const result = await model.insert(data)
                 return res.status(200).json({
                     status: 'ok',
@@ -82,6 +96,11 @@ export default function routeFactory(options?: RouteFactoryOptions) {
             try {
                 debug(`POST ${def.name}`)
                 const data = req.body
+
+                if (model.definition.audit) {
+                    const userId = await options.getUserId(req)
+                    data['modified_by_id'] = userId
+                }
                 const result = await model.update(data)
                 return res.status(200).json({
                     status: 'ok',

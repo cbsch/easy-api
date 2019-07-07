@@ -6,7 +6,7 @@ function getCodeBuilder() {
     var _numIndentSpaces = 4;
     var obj = {
         add: function (text) { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + text; return obj; },
-        addln: function (text) { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + text + '\n'; return obj; },
+        addln: function (text) { _text += ' '.repeat(_indentLevel * _numIndentSpaces) + (text ? text : '') + '\n'; return obj; },
         addcontainer: function (container) {
             container.get().split('\n').map(function (s) { return obj.addln(s); });
             return obj;

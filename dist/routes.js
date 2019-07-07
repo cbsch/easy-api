@@ -14,8 +14,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -38,10 +38,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var debugFactory = require("debug");
 var debug = debugFactory('easy-api:routes');
-function useRoutes(model) {
+function useRoutes(model, options) {
     var router = express.Router();
-    var route = routeFactory();
-    Object.keys(model).map(function (m) { return router.use('/', route(model[m])); });
+    var route = routeFactory(options);
+    Object.keys(model).map(function (m) {
+        router.use('/', route(model[m]));
+    });
     return router;
 }
 exports.useRoutes = useRoutes;
@@ -59,6 +61,9 @@ function routeFactory(options) {
         var def = model.definition;
         var middleware = options.middleware;
         debug("generating routes for " + model.definition.name);
+        if (model.definition.audit && !options.getUserId) {
+            throw "model " + model.definition.name + " has audit enabled, but no getUserId function is specified in options";
+        }
         router.get("/" + def.name, middleware.get(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var split, query, result, err_1;
             return __generator(this, function (_a) {
@@ -88,48 +93,61 @@ function routeFactory(options) {
             });
         }); });
         router.post("/" + def.name, middleware.post(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var data, result, err_2;
+            var data, userId, result, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _a.trys.push([0, 4, , 5]);
                         debug("POST " + def.name);
                         data = req.body;
-                        return [4, model.insert(data)];
+                        if (!model.definition.audit) return [3, 2];
+                        return [4, options.getUserId(req)];
                     case 1:
+                        userId = _a.sent();
+                        data['modified_by_id'] = userId;
+                        data['created_by_id'] = userId;
+                        _a.label = 2;
+                    case 2: return [4, model.insert(data)];
+                    case 3:
                         result = _a.sent();
                         return [2, res.status(200).json({
                                 status: 'ok',
                                 data: result
                             })];
-                    case 2:
+                    case 4:
                         err_2 = _a.sent();
                         debug(err_2);
                         return [2, res.status(500).json(err_2)];
-                    case 3: return [2];
+                    case 5: return [2];
                 }
             });
         }); });
         router.put("/" + def.name, middleware.put(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var data, result, err_3;
+            var data, userId, result, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _a.trys.push([0, 4, , 5]);
                         debug("POST " + def.name);
                         data = req.body;
-                        return [4, model.update(data)];
+                        if (!model.definition.audit) return [3, 2];
+                        return [4, options.getUserId(req)];
                     case 1:
+                        userId = _a.sent();
+                        data['modified_by_id'] = userId;
+                        _a.label = 2;
+                    case 2: return [4, model.update(data)];
+                    case 3:
                         result = _a.sent();
                         return [2, res.status(200).json({
                                 status: 'ok',
                                 data: result
                             })];
-                    case 2:
+                    case 4:
                         err_3 = _a.sent();
                         debug(err_3);
                         return [2, res.status(500).json(err_3)];
-                    case 3: return [2];
+                    case 5: return [2];
                 }
             });
         }); });

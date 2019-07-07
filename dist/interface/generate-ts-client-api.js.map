@@ -1,0 +1,1 @@
+{"version":3,"file":"generate-ts-client-api.js","sourceRoot":"","sources":["../../src/interface/generate-ts-client-api.ts"],"names":[],"mappings":";;AAEA,yBAAmC;AAEnC,6DAA6E;AAC7E,6BAA4B;AAE5B,SAAwB,aAAa,CAAC,MAA6B,EAAE,IAAY;IAC7E,IAAM,aAAa,GAAG,WAAI,CAAC,IAAI,EAAE,eAAe,CAAC,CAAA;IACjD,kBAAa,CAAC,aAAa,EAAE,kCAAqB,CAAC,MAAM,CAAC,CAAC,CAAA;AAC/D,CAAC;AAHD,gCAGC"}

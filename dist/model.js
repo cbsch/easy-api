@@ -1,11 +1,14 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -22,8 +25,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -46,99 +49,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var events = require("events");
 var debugFactory = require("debug");
 var querystring = require("querystring");
+var pg_1 = require("./sql/pg");
 var debug = debugFactory('easy-api:model:generator');
 var generatedModel = {};
 exports.generatedModel = generatedModel;
 var emitter = new events.EventEmitter();
 exports.emitter = emitter;
 emitter.setMaxListeners(500);
-var joinTableColumnSplit = '___';
-function generateCreateColumn(def) {
-    var sqlString = '    ';
-    if (def.type === "reference") {
-        sqlString += def.name + "_id";
-    }
-    else {
-        sqlString += def.name;
-    }
-    var type = def.type === "number" ? 'INTEGER' :
-        def.type === "string" ? 'TEXT' :
-            def.type === "date" ? 'TIMESTAMP WITH TIME ZONE' :
-                def.type === "serial" ? 'SERIAL' :
-                    def.type === "boolean" ? 'BOOLEAN' :
-                        def.type === "float" ? 'REAL' :
-                            def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
-    if (type === '')
-        throw "No type for column " + def.name;
-    sqlString += " " + type;
-    if (def.unique) {
-        sqlString += ' UNIQUE';
-    }
-    if (def.notnull) {
-        sqlString += ' NOT NULL';
-    }
-    if (def.pk) {
-        sqlString += ' PRIMARY KEY';
-    }
-    if (def.type === "reference" && def.cascade) {
-        sqlString += ' ON UPDATE CASCADE ON DELETE CASCADE';
-    }
-    return sqlString;
-}
-exports.generateCreateColumn = generateCreateColumn;
-function generateCreateTable(def) {
-    var sqlText = "CREATE TABLE " + def.name + " (\n";
-    var columnStrings = def.columns.map(function (c) { return generateCreateColumn(c); });
-    var columnText = columnStrings.join(',\n');
-    columnText += '\n';
-    sqlText += columnText;
-    sqlText += ');\n';
-    sqlText += "ALTER SEQUENCE " + def.name + "_id_seq RESTART WITH 1000;\n";
-    return sqlText;
-}
-exports.generateCreateTable = generateCreateTable;
-function generateInsert(def, data) {
-    var validColumns = def.columns.map(function (c) {
-        if (c.type === "reference") {
-            return c.name + "_id";
-        }
-        else {
-            return c.name;
-        }
-    }).filter(function (s) { return s !== 'id'; });
-    var columns = Object.keys(data).filter(function (v) { return validColumns.indexOf(v) > -1; });
-    var valueColums = columns.map(function (c) { return "$[" + c + "]"; });
-    var sqlText = "INSERT INTO " + def.name + "(\n";
-    sqlText += '    ' + columns.join(',\n    ') + '\n';
-    sqlText += ') VALUES (\n';
-    sqlText += '    ' + valueColums.join(',\n    ') + '\n';
-    sqlText += ')\n';
-    sqlText += 'RETURNING *;\n';
-    return sqlText;
-}
-exports.generateInsert = generateInsert;
-function generateUpdate(def, data) {
-    var validColumns = def.columns.map(function (c) {
-        if (c.type === "reference") {
-            return c.name + "_id";
-        }
-        else {
-            return c.name;
-        }
-    }).filter(function (s) { return s !== 'id'; });
-    var columns = Object.keys(data).filter(function (v) { return validColumns.indexOf(v) > -1; });
-    var setStatements = [];
-    columns.forEach(function (c) {
-        setStatements.push(c + " = $[" + c + "]");
-    });
-    var sqlText = "UPDATE " + def.name + "\n";
-    sqlText += 'SET\n';
-    sqlText += '    ' + setStatements.join(',\n    ') + '\n';
-    sqlText += 'WHERE id = $[id]\n';
-    sqlText += 'RETURNING *;\n';
-    return sqlText;
-}
-exports.generateUpdate = generateUpdate;
 function queryToObject(string) {
     if (!string) {
         return undefined;
@@ -147,7 +64,7 @@ function queryToObject(string) {
     var args = {};
     if (query && query['filters']) {
         args.filters = [];
-        var filterList = query['filters'].split(',');
+        var filterList = query['filters'].split(';');
         for (var _i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
             var filter = filterList_1[_i];
             var op = filter.match('=') ? '=' :
@@ -158,7 +75,7 @@ function queryToObject(string) {
                 continue;
             }
             if (op === '[') {
-                var values = filter.split(op)[1].split(']')[0].split(';');
+                var values = filter.split(op)[1].split(']')[0].split(',');
                 args.in = {
                     column: filter.split(op)[0],
                     values: values
@@ -179,68 +96,11 @@ function queryToObject(string) {
         args.relations = true;
     }
     if (query && undefined !== query['orderby']) {
-        args.orderby = query['orderby'].split(',');
+        args.orderby = query['orderby'].split(';');
     }
     return args;
 }
 exports.queryToObject = queryToObject;
-function generateSelect(def, args) {
-    var columns;
-    if (args && args.columns) {
-        columns = args.columns.map(function (s) { return def.name + "." + s; }).join(', ');
-    }
-    else {
-        columns = def.columns.map(function (s) { return def.name + "." + (s.type !== "reference" ? s.name : s.name + '_id'); }).join(', ');
-    }
-    if (args && args.relations) {
-        var joinedSelects = [];
-        def.columns.filter(function (c) { return c.type === "reference"; }).map(function (refTable) {
-            debug(refTable);
-            var refColumns = generatedModel[refTable.reference].definition.columns;
-            refColumns.map(function (refCol) {
-                var columnName = refCol.type === "reference" ? refCol.name + "_id" : refCol.name;
-                joinedSelects.push(refTable.reference + "." + columnName + " AS " + refTable.name + joinTableColumnSplit + columnName);
-            });
-        });
-        if (joinedSelects) {
-            columns += ', ';
-            columns += joinedSelects.join(', ');
-        }
-    }
-    var sqlText = "SELECT " + columns + "\nFROM " + def.name + "\n";
-    var joinText = '';
-    if (args && args.relations) {
-        def.columns.filter(function (c) { return c.type === "reference"; }).map(function (c) {
-            joinText += "JOIN " + c.reference + " ON " + c.reference + ".id = " + c.name + "_id\n";
-        });
-    }
-    if (joinText) {
-        sqlText += joinText;
-    }
-    var filterText;
-    var filterLines = [];
-    if (args && args.filters) {
-        filterLines = args.filters.map(function (c) {
-            if (!c.op.match(/[<>=]/g)) {
-                throw "Invalid operator " + c.op;
-            }
-            return def.name + "." + c.column + " " + c.op + " $[" + c.column + "]";
-        }).slice();
-    }
-    if (args && args.in) {
-        filterLines = filterLines.concat([args.in.column + " IN (" + args.in.values.join(', ') + ")"]);
-    }
-    if (filterLines.length > 0) {
-        filterText = filterLines.join(' AND ');
-        sqlText += "WHERE " + filterText + "\n";
-    }
-    if (args && args.orderby) {
-        sqlText += "ORDER BY " + args.orderby.join(', ') + "\n";
-    }
-    sqlText += ';';
-    return sqlText;
-}
-exports.generateSelect = generateSelect;
 function modelWrapper(db) {
     if (!db) {
         throw "db object not initialized";
@@ -257,14 +117,32 @@ function model(db, def) {
     if (!def) {
         throw "definition object not initialized";
     }
+    if (generatedModel[def.name]) {
+        return generatedModel[def.name];
+    }
     debug("generating table " + def.name + " on db " + db);
-    def.columns.unshift({ name: 'id', type: "serial", pk: true });
+    def.columns = [{ name: 'id', type: 'serial', pk: true }].concat(def.columns);
     def.columns = def.columns.map(function (c) {
         return __assign({}, c, { reference: c.reference ? c.reference : c.type === "reference" ? c.name : null });
     });
+    if (def.audit) {
+        def.columns = def.columns.concat([
+            { name: 'created_by', type: 'reference', reference: def.audit },
+            { name: 'modified_by', type: 'reference', reference: def.audit }
+        ]);
+    }
+    var aliasNumber = 0;
+    def.columns = def.columns.map(function (c) {
+        if (c.type === 'reference') {
+            return __assign({}, c, { _reference_alias: "" + c.reference + aliasNumber++ });
+        }
+        else {
+            return c;
+        }
+    });
     var model = {
         definition: def,
-        createText: generateCreateTable(def),
+        createText: pg_1.generateCreateTable(def),
         create: createFactory(db, def),
         drop: dropFactory(db, def),
         insert: insertFactory(db, def),
@@ -303,7 +181,7 @@ function deleteFactory(db, def) {
 function updateFactory(db, def) {
     var _this = this;
     return function (data) {
-        var sqlText = generateUpdate(def, data);
+        var sqlText = pg_1.generateUpdate(def, data);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var result, err_2;
             return __generator(this, function (_a) {
@@ -335,7 +213,7 @@ function insertFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        sqlText = generateInsert(def, data);
+                        sqlText = pg_1.generateInsert(def, data);
                         return [4, db.oneOrNone(sqlText, data)];
                     case 1:
                         result = _a.sent();
@@ -379,7 +257,7 @@ function dropFactory(db, def) {
 }
 function createFactory(db, def) {
     var _this = this;
-    var sqlText = generateCreateTable(def);
+    var sqlText = pg_1.generateCreateTable(def);
     return function () {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var err_5;
@@ -414,7 +292,7 @@ function findFactory(db, def) {
                         _a.trys.push([0, 2, , 3]);
                         debug("find called on " + def.name);
                         args = queryToObject(query);
-                        sqlText = generateSelect(def, args);
+                        sqlText = pg_1.generateSelect(def, args);
                         obj = {};
                         if (args && args.filters) {
                             args.filters.forEach(function (a) { obj[a.column] = a.value; });
@@ -424,7 +302,7 @@ function findFactory(db, def) {
                         result = _a.sent();
                         debug("found " + result.length + " " + def.name);
                         if (args && args.relations) {
-                            mapRelations(result);
+                            pg_1.mapRelations(result);
                         }
                         resolve(result);
                         return [3, 3];
@@ -437,20 +315,5 @@ function findFactory(db, def) {
             });
         }); });
     };
-}
-function mapRelations(result) {
-    result.map(function (r) {
-        r['relations'] = {};
-        Object.keys(r).map(function (key) {
-            if (key.match(joinTableColumnSplit)) {
-                var relationName = key.split(joinTableColumnSplit)[0];
-                if (!r['relations'][relationName]) {
-                    r['relations'][relationName] = {};
-                }
-                r['relations'][relationName][key.split(joinTableColumnSplit)[1]] = r[key];
-                delete r[key];
-            }
-        });
-    });
 }
 //# sourceMappingURL=model.js.map

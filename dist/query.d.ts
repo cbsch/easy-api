@@ -1,4 +1,4 @@
-import { Table } from "./model";
+import { Table } from ".";
 export interface QueryBuilder {
     filter: {
         [index: string]: Filter<string | number>;

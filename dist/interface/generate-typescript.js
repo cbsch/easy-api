@@ -2,14 +2,18 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var codebuilder_1 = require("./codebuilder");
-function generateCode(models, path) {
+function writeCodeFile(models, path) {
+    fs_1.writeFileSync(path, generateCode(models));
+}
+exports.default = writeCodeFile;
+function generateCode(models) {
     var code = codebuilder_1.default();
     models.forEach(function (model) {
         code.addcontainer(generateInterfaceText(model.definition));
     });
-    fs_1.writeFileSync(path, code.get());
+    return code.get();
 }
-exports.default = generateCode;
+exports.generateCode = generateCode;
 function generateInterfaceText(table) {
     var code = codebuilder_1.default();
     code.addln("export interface " + table.name + " {").indent();
