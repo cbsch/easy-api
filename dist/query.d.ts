@@ -1,7 +1,7 @@
 import { Table } from "./interfaces";
 export interface QueryBuilder<T> {
     filter: {
-        [index: string]: Filter<string | number, QueryBuilder<T>>;
+        [index: string]: Filter<any, QueryBuilder<T>>;
     };
     orderby: {
         [index: string]: OrderBy<QueryBuilder<T>>;
