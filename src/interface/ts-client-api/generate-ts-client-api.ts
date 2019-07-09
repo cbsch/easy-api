@@ -13,15 +13,15 @@ export default function writeClientApi(models: GeneratedModel<any>[], path: stri
     writeFileSync(apiPath, generateApiCode(models).get())
 
     const templatePath = join(path, 'generated-api-lib.ts')
-    const template = readFileSync(join(__dirname, 'ts-api-template.ts'))
+    const template = readFileSync(join(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'))
     writeFileSync(templatePath, template)
 
     const modelJsonPath = join(path, 'models.json')
     const modelJson = generateModel(models)
     writeFileSync(modelJsonPath, modelJson)
 
-    writeFileSync(join(path, 'interfaces.ts'), readFileSync(join(__dirname, '../../interfaces.ts')))
-    writeFileSync(join(path, 'query.ts'), readFileSync(join(__dirname, '../../query.ts')))
+    writeFileSync(join(path, 'interfaces.ts'), readFileSync(join(__dirname, '../../../src/interfaces.ts')))
+    writeFileSync(join(path, 'query.ts'), readFileSync(join(__dirname, '../../../src/query.ts')))
     writeFileSync(join(path, 'query-interfaces.ts'), generateQueryBuilderInterfaces(models))
 }
 

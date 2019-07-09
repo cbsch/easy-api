@@ -10,13 +10,13 @@ function writeClientApi(models, path) {
     var apiPath = path_1.join(path, 'index.ts');
     fs_1.writeFileSync(apiPath, generateApiCode(models).get());
     var templatePath = path_1.join(path, 'generated-api-lib.ts');
-    var template = fs_1.readFileSync(path_1.join(__dirname, 'ts-api-template.ts'));
+    var template = fs_1.readFileSync(path_1.join(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'));
     fs_1.writeFileSync(templatePath, template);
     var modelJsonPath = path_1.join(path, 'models.json');
     var modelJson = generateModel(models);
     fs_1.writeFileSync(modelJsonPath, modelJson);
-    fs_1.writeFileSync(path_1.join(path, 'interfaces.ts'), fs_1.readFileSync(path_1.join(__dirname, '../../interfaces.ts')));
-    fs_1.writeFileSync(path_1.join(path, 'query.ts'), fs_1.readFileSync(path_1.join(__dirname, '../../query.ts')));
+    fs_1.writeFileSync(path_1.join(path, 'interfaces.ts'), fs_1.readFileSync(path_1.join(__dirname, '../../../src/interfaces.ts')));
+    fs_1.writeFileSync(path_1.join(path, 'query.ts'), fs_1.readFileSync(path_1.join(__dirname, '../../../src/query.ts')));
     fs_1.writeFileSync(path_1.join(path, 'query-interfaces.ts'), generateQueryBuilderInterfaces(models));
 }
 exports.default = writeClientApi;
