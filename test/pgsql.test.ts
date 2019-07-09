@@ -9,7 +9,7 @@ import { IDatabase } from 'pg-promise';
 
 
 describe('generateCreateColumn', () => {
-    it('should return correctl sql', () => {
+    it('should return correct sql', () => {
         const sql = generateCreateColumn({name: 'test', type: 'string'});
 
         expect(sql).to.equal('    test TEXT');

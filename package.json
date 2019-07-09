@@ -7,7 +7,7 @@
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "oldtest": "mocha --reporter spec ",
-    "test": "mocha test/**/*.test.ts --require ts-node/register",
+    "test": "node_modules/.bin/ts-node test/generate.ts && mocha test/**/*.test.ts --require ts-node/register",
     "prepare": "npm run build"
   },
   "repository": {

@@ -13,13 +13,17 @@ describe('generateApiCode', () => {
         apiCode.should.eql(`import {
     login,
     audit,
-} from './interfaces'
+} from './model-interfaces'
+import {
+    loginQueryBuilder,
+    auditQueryBuilder,
+} from './query-interfaces'
 import generateApi, { ApiOptions } from './generated-api-lib'
 
 export default (options?: ApiOptions) => {
     return {
-        login: generateApi<login>('login', options),
-        audit: generateApi<audit>('audit', options),
+        login: generateApi<login, loginQueryBuilder<login>>('login', options),
+        audit: generateApi<audit, auditQueryBuilder<audit>>('audit', options),
     }
 }
 `)
@@ -65,10 +69,15 @@ describe('client api (complex)', () => {
             o.res.should.have.property('name').eql(o.data.name)
             o.res.should.have.property('value').eql(o.data.value)
         })
-
     })
 
     it ('should get', async () => {
-    })
+        await api.complex.insert({name: 'test-name1'})
+        await api.complex.insert({name: 'test-name2'})
+        const res1 = (await api.complex.query().filter.name.eq(`test-name1`).get())[0]
+        res1.should.have.property('name').eql('test-name1')
 
+        const res2 = (await api.complex.query().filter.name.eq(`test-name2`).get())[0]
+        res2.should.have.property('name').eql('test-name2')
+    })
 })

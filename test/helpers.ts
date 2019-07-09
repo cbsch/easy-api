@@ -3,7 +3,6 @@ import * as express from 'express'
 import modelWrapper, { useRoutes } from '../src';
 import { auditTable, loginTable, Login, Audit, complexTable } from './data.test';
 import { generatedModel as model } from '../src/model';
-import * as path from 'path'
 
 import * as http from 'http'
 
@@ -83,10 +82,7 @@ after(function(done) {
     process.exit(0)
 })
 
-let modelList = Object.keys(model).map(k => model[k])
 
-import writeCodeFile from '../src/interface/ts-client-api/generate-ts-client-api';
-writeCodeFile(modelList, path.join(__dirname, '/gen/api'))
 import apiGenerator from './gen/api'
 export const api = apiGenerator({url: url()})
 

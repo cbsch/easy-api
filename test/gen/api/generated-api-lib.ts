@@ -1,4 +1,6 @@
 import Axios, { Method, AxiosResponse } from "axios";
+import { queryBuilderFactory, QueryBuilder } from "./query";
+import { Table } from "./interfaces";
 
 export type Request = (url: string, method: Method, data?: any) => Promise<AxiosResponse<any>>
 export interface ApiOptions {
@@ -38,12 +40,17 @@ export const requestFactory = (options?: ApiOptions): Request => {
 }
 
 
-export default function generateApi<T>(modelName: string, options?: ApiOptions) {
+
+export function queryBuilderRequestFactory<T, QB extends QueryBuilder<T>> (table: Table<T>, request: Request) {
+    let queryBuilder = queryBuilderFactory<T, QB>(table)
+}
+
+const modelList: Table<any>[] = require('./models.json')
+
+export default function generateApi<T, QB extends QueryBuilder<T>>(modelName: string, options?: ApiOptions) {
     const request = requestFactory(options)
 
-    console.log('test')
-    console.log(require('./models.json'))
-    console.log('test')
+    const table = modelList.filter(t => t.name === modelName)[0] as Table<T>
 
     return {
         get: getFactory<T>(modelName, request),
@@ -51,7 +58,7 @@ export default function generateApi<T>(modelName: string, options?: ApiOptions) 
         update: updateFactory<T>(modelName, request),
         insert: insertFactory<T>(modelName, request),
         remove: removeFactory<T>(modelName, request),
-        //query: queryBuilderFactory()
+        query: queryBuilderFactory<T, QB>(table, (query) => { return getFactory<T>(modelName, request)(query) } ),
     }
 }
 

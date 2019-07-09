@@ -1,6 +1,7 @@
 import { Table, GeneratedModel } from "..";
 import { writeFileSync } from "fs";
 import getCodeBuilder from "./codebuilder";
+import { Types } from "../interfaces";
 
 export default function writeCodeFile(models: GeneratedModel<any>[], path: string) {
     writeFileSync(path, generateCode(models))
@@ -22,26 +23,10 @@ export function generateInterfaceText(table: Table<any>) {
     code.addln(`export interface ${table.name} {`).indent()
 
     table.columns.forEach(column => {
-        switch (column.type) {
-            case 'reference': {
-                code.addln(`${column.name}_id?: number`)
-                break
-            }
-            case 'date': {
-                code.addln(`${column.name}?: Date`)
-                break;
-            }
-            case 'serial': {
-                code.addln(`${column.name}?: number`)
-                break;
-            }
-            case 'float': {
-                code.addln(`${column.name}?: number`)
-                break;
-            }
-            default: {
-                code.addln(`${column.name}?: ${column.type}`)
-            }
+        if (column.type === 'reference') {
+            code.addln(`${column.name}_id?: number`)
+        } else {
+            code.addln(`${column.name}?: ${modelTypeToTSType(column.type)}`)
         }
     })
 
@@ -59,4 +44,24 @@ export function generateInterfaceText(table: Table<any>) {
     code.unindent().addln('}')
 
     return code
+}
+
+export function modelTypeToTSType(type: Types): string {
+    switch (type) {
+        case 'reference': {
+            return 'number'
+        }
+        case 'date': {
+            return 'Date'
+        }
+        case 'serial': {
+            return 'number'
+        }
+        case 'float': {
+            return 'number'
+        }
+        default: {
+            return type
+        }
+    }
 }

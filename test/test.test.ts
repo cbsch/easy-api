@@ -33,12 +33,12 @@ describe('queryBuilder', () => {
         let queryBuilder = queryModule.queryBuilderFactory(testTable);
         let query = queryBuilder().filter.name.eq('test').filter.id.eq(50).orderby.id.asc();
 
-        expect(query.get()).to.equal('?filters=name=test;id=50&orderby=id asc');
+        expect(query.toString()).to.equal('?filters=name=test;id=50&orderby=id asc');
     });
     it('orderby should work', () => {
         let queryBuilder = queryModule.queryBuilderFactory(testTable);
         let query = queryBuilder().orderby.id.asc().orderby.name.desc();
 
-        expect(query.get()).to.equal('?orderby=id asc;name desc');
+        expect(query.toString()).to.equal('?orderby=id asc;name desc');
     })
 });
