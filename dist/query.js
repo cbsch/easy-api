@@ -12,7 +12,7 @@ function orderby(chain, sorts, column) {
         desc: function () { sorts.push(column + " desc"); return chain; }
     };
 }
-function queryBuilderFactory(table) {
+function queryBuilderFactory(table, get) {
     return function () {
         var filters = [];
         var sorts = [];
@@ -21,7 +21,7 @@ function queryBuilderFactory(table) {
             filter: {},
             orderby: {},
             relations: function () { query.push("relations"); return chain; },
-            get: function () {
+            toString: function () {
                 if (sorts.length > 0) {
                     query = ["orderby=" + sorts.join(';')].concat(query);
                 }
@@ -31,6 +31,9 @@ function queryBuilderFactory(table) {
                 return "?" + query.join('&');
             }
         };
+        if (get) {
+            chain.get = function () { return get(chain.toString()); };
+        }
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
             chain.orderby[column.name] = orderby(chain, sorts, column.name);

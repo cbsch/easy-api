@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = require("axios");
+var query_1 = require("./query");
 exports.requestFactory = function (options) {
     return function (url, method, data) { return __awaiter(_this, void 0, void 0, function () {
         var headers, res, err_1;
@@ -74,18 +75,21 @@ exports.requestFactory = function (options) {
         });
     }); };
 };
-var modelList = require('models.json');
+function queryBuilderRequestFactory(table, request) {
+    var queryBuilder = query_1.queryBuilderFactory(table);
+}
+exports.queryBuilderRequestFactory = queryBuilderRequestFactory;
+var modelList = require('./models.json');
 function generateApi(modelName, options) {
     var request = exports.requestFactory(options);
-    console.log('test');
-    console.log(require('./models.json'));
-    console.log('test');
+    var table = modelList.filter(function (t) { return t.name === modelName; })[0];
     return {
         get: getFactory(modelName, request),
         getById: getByIdFactory(modelName, request),
         update: updateFactory(modelName, request),
         insert: insertFactory(modelName, request),
         remove: removeFactory(modelName, request),
+        query: query_1.queryBuilderFactory(table, function (query) { return getFactory(modelName, request)(query); }),
     };
 }
 exports.default = generateApi;

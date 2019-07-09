@@ -18,26 +18,11 @@ function generateInterfaceText(table) {
     var code = codebuilder_1.default();
     code.addln("export interface " + table.name + " {").indent();
     table.columns.forEach(function (column) {
-        switch (column.type) {
-            case 'reference': {
-                code.addln(column.name + "_id?: number");
-                break;
-            }
-            case 'date': {
-                code.addln(column.name + "?: Date");
-                break;
-            }
-            case 'serial': {
-                code.addln(column.name + "?: number");
-                break;
-            }
-            case 'float': {
-                code.addln(column.name + "?: number");
-                break;
-            }
-            default: {
-                code.addln(column.name + "?: " + column.type);
-            }
+        if (column.type === 'reference') {
+            code.addln(column.name + "_id?: number");
+        }
+        else {
+            code.addln(column.name + "?: " + modelTypeToTSType(column.type));
         }
     });
     var references = table.columns.filter(function (c) { return c.type === 'reference'; });
@@ -52,4 +37,24 @@ function generateInterfaceText(table) {
     return code;
 }
 exports.generateInterfaceText = generateInterfaceText;
+function modelTypeToTSType(type) {
+    switch (type) {
+        case 'reference': {
+            return 'number';
+        }
+        case 'date': {
+            return 'Date';
+        }
+        case 'serial': {
+            return 'number';
+        }
+        case 'float': {
+            return 'number';
+        }
+        default: {
+            return type;
+        }
+    }
+}
+exports.modelTypeToTSType = modelTypeToTSType;
 //# sourceMappingURL=generate-typescript.js.map

@@ -4,6 +4,7 @@ var model_1 = require("../model");
 var generate_csharp_1 = require("./generate-csharp");
 var generate_powershell_1 = require("./generate-powershell");
 var generate_typescript_1 = require("./generate-typescript");
+var generate_ts_client_api_1 = require("./ts-client-api/generate-ts-client-api");
 function generateCode(language, path) {
     var models = Object.keys(model_1.generatedModel).map(function (key) { return model_1.generatedModel[key]; });
     switch (language) {
@@ -18,6 +19,9 @@ function generateCode(language, path) {
         case "typescript": {
             generate_typescript_1.default(models, path);
             break;
+        }
+        case "typescript_api": {
+            generate_ts_client_api_1.default(models, path);
         }
     }
 }

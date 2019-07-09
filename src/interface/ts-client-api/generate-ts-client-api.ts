@@ -5,7 +5,7 @@ import getCodeBuilder from "../codebuilder";
 import { generateCode as generateInterfaceCode, modelTypeToTSType } from '../generate-typescript'
 import { join } from "path";
 
-export default function writeCodeFile(models: GeneratedModel<any>[], path: string) {
+export default function writeClientApi(models: GeneratedModel<any>[], path: string) {
     const interfacePath = join(path, 'model-interfaces.ts')
     writeFileSync(interfacePath, generateInterfaceCode(models))
 
