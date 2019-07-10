@@ -75,6 +75,10 @@ export function queryBuilderFactory<T, QB extends QueryBuilder<T>> (
                     chain.filter[column.name] = filter<number, QB>(chain, filters, column.name)
                     break;
                 }
+                case "reference": {
+                    chain.filter[`${column.name}_id`] = filter<number, QB>(chain, filters, `${column.name}_id`)
+                    break;
+                }
                 default: {
                     chain.filter[column.name] = filter<any, QB>(chain, filters, column.name)
                     break;

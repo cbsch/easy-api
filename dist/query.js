@@ -46,6 +46,10 @@ function queryBuilderFactory(table, get) {
                     chain.filter[column.name] = filter(chain, filters, column.name);
                     break;
                 }
+                case "reference": {
+                    chain.filter[column.name + "_id"] = filter(chain, filters, column.name + "_id");
+                    break;
+                }
                 default: {
                     chain.filter[column.name] = filter(chain, filters, column.name);
                     break;
