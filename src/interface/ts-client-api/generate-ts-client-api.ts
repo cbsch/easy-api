@@ -100,16 +100,3 @@ export function generateQueryBuilderInterfaces(models: GeneratedModel<any>[]) {
 
     return code.get()
 }
-
-/*
-export interface QueryBuilder {
-    filter: {
-        [index: string]: Filter<string | number>
-    }
-    orderby: {
-        [index: string]: OrderBy
-    }
-    relations: () => QueryBuilder
-    get: () => string
-}
-*/

@@ -4,7 +4,7 @@ import { Table } from "./interfaces";
 export declare type Request = (url: string, method: Method, data?: any) => Promise<AxiosResponse<any>>;
 export interface ApiOptions {
     url?: string;
-    headers?: Headers;
+    headers?: {};
     errorHandler?: (error: any) => void;
 }
 export declare const requestFactory: (options?: ApiOptions) => Request;
