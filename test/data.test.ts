@@ -49,6 +49,12 @@ export const complexTable: Table<any> = {
     }, {
         name: 'value',
         type: 'number'
+    }, {
+        name: 'enabled',
+        type: 'boolean'
+    }, {
+        name: 'timestamp',
+        type: 'date'
     }]
 
 }

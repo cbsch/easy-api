@@ -18,6 +18,8 @@ export interface complex {
     id?: number
     name?: string
     value?: number
+    enabled?: boolean
+    timestamp?: Date
     created_by_id?: number
     modified_by_id?: number
     relations?: {

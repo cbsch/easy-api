@@ -1,12 +1,13 @@
 {
   "name": "easy-api",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Code generation library for quickly creating rest-like API and clients",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "oldtest": "mocha --reporter spec ",
+    "generate": "node_modules/.bin/ts-node test/generate.ts",
     "test": "node_modules/.bin/ts-node test/generate.ts && mocha test/**/*.test.ts --require ts-node/register",
     "prepare": "npm run build"
   },

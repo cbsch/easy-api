@@ -65,6 +65,16 @@
         "reference": null
       },
       {
+        "name": "enabled",
+        "type": "boolean",
+        "reference": null
+      },
+      {
+        "name": "timestamp",
+        "type": "date",
+        "reference": null
+      },
+      {
         "name": "created_by",
         "type": "reference",
         "reference": "login",
