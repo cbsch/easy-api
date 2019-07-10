@@ -42,12 +42,22 @@ function queryBuilderFactory(table, get) {
                     chain.filter[column.name] = filter(chain, filters, column.name);
                     break;
                 }
+                case "serial":
+                case "float":
                 case "number": {
                     chain.filter[column.name] = filter(chain, filters, column.name);
                     break;
                 }
                 case "reference": {
                     chain.filter[column.name + "_id"] = filter(chain, filters, column.name + "_id");
+                    break;
+                }
+                case "boolean": {
+                    chain.filter[column.name] = filter(chain, filters, column.name);
+                    break;
+                }
+                case "date": {
+                    chain.filter[column.name] = filter(chain, filters, column.name);
                     break;
                 }
                 default: {

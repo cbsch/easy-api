@@ -71,12 +71,22 @@ export function queryBuilderFactory<T, QB extends QueryBuilder<T>> (
                     chain.filter[column.name] = filter<string, QB>(chain, filters, column.name)
                     break;
                 }
+                case "serial":
+                case "float":
                 case "number": {
                     chain.filter[column.name] = filter<number, QB>(chain, filters, column.name)
                     break;
                 }
                 case "reference": {
                     chain.filter[`${column.name}_id`] = filter<number, QB>(chain, filters, `${column.name}_id`)
+                    break;
+                }
+                case "boolean": {
+                    chain.filter[column.name] = filter<boolean, QB>(chain, filters, column.name)
+                    break;
+                }
+                case "date": {
+                    chain.filter[column.name] = filter<Date, QB>(chain, filters, column.name)
                     break;
                 }
                 default: {
