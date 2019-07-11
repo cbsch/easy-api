@@ -130,7 +130,7 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
     let joinText = ''
     if (args && args.relations) {
         for (let c of def.columns.filter(c => c.type === "reference")) {
-            joinText += `JOIN ${c.reference} AS ${c._reference_alias} ON ${c._reference_alias}.id = ${def.name}.${c.name}_id\n`
+            joinText += `LEFT JOIN ${c.reference} AS ${c._reference_alias} ON ${c._reference_alias}.id = ${def.name}.${c.name}_id\n`
 
         }
     }
