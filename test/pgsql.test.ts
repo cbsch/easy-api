@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 const expect = chai.expect
 
-import { testTable, auditTable, loginTable } from './data.test'
-import model, { queryToObject, modelWrapper } from '../src/model';
+import { testTable, auditTable } from './data.test'
+import model, { queryToObject } from '../src/model';
 import { generateCreateColumn, generateSelect } from '../src/sql/pg';
 import { IDatabase } from 'pg-promise';
 

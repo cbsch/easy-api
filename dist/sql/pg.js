@@ -118,7 +118,7 @@ function generateSelect(def, args) {
     if (args && args.relations) {
         for (var _i = 0, _a = def.columns.filter(function (c) { return c.type === "reference"; }); _i < _a.length; _i++) {
             var c = _a[_i];
-            joinText += "JOIN " + c.reference + " AS " + c._reference_alias + " ON " + c._reference_alias + ".id = " + c.name + "_id\n";
+            joinText += "JOIN " + c.reference + " AS " + c._reference_alias + " ON " + c._reference_alias + ".id = " + def.name + "." + c.name + "_id\n";
         }
     }
     if (joinText) {
