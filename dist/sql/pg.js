@@ -22,6 +22,9 @@ function generateCreateColumn(def) {
     if (type === '')
         throw "No type for column " + def.name;
     sqlString += " " + type;
+    if (def.type === "reference" && def.cascade) {
+        sqlString += ' ON UPDATE CASCADE ON DELETE CASCADE';
+    }
     if (def.unique) {
         sqlString += ' UNIQUE';
     }
@@ -30,9 +33,6 @@ function generateCreateColumn(def) {
     }
     if (def.pk) {
         sqlString += ' PRIMARY KEY';
-    }
-    if (def.type === "reference" && def.cascade) {
-        sqlString += ' ON UPDATE CASCADE ON DELETE CASCADE';
     }
     return sqlString;
 }
