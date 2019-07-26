@@ -5,7 +5,8 @@ import { Table } from "./interfaces";
 export type Request = (url: string, method: Method, data?: any) => Promise<AxiosResponse<any>>
 export interface ApiOptions {
     url?: string
-    headers?: {}
+    headers?: {[index: string]: string}
+    headerCallbacks?: {[index: string]: () => string}
     errorHandler?: (error: any) => void
 }
 
@@ -16,9 +17,15 @@ export const requestFactory = (options?: ApiOptions): Request => {
                 url = options.url + url
             }
 
-            let headers = {}
+            let headers: {[index: string]: string} = {}
             if (options && options.headers) {
                 headers = options.headers
+            }
+
+            if (options && options.headerCallbacks) {
+                for (let key of Object.keys(options.headerCallbacks)) {
+                    headers[key] = options.headerCallbacks[key]()
+                }
             }
 
             const res = await Axios.request({

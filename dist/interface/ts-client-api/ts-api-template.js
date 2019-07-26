@@ -40,17 +40,23 @@ var axios_1 = require("axios");
 var query_1 = require("./query");
 exports.requestFactory = function (options) {
     return function (url, method, data) { return __awaiter(_this, void 0, void 0, function () {
-        var headers, res, err_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var headers, _i, _a, key, res, err_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _b.trys.push([0, 2, , 3]);
                     if (options && options.url) {
                         url = options.url + url;
                     }
                     headers = {};
                     if (options && options.headers) {
                         headers = options.headers;
+                    }
+                    if (options && options.headerCallbacks) {
+                        for (_i = 0, _a = Object.keys(options.headerCallbacks); _i < _a.length; _i++) {
+                            key = _a[_i];
+                            headers[key] = options.headerCallbacks[key]();
+                        }
                     }
                     return [4, axios_1.default.request({
                             method: method,
@@ -59,10 +65,10 @@ exports.requestFactory = function (options) {
                             data: data
                         })];
                 case 1:
-                    res = _a.sent();
+                    res = _b.sent();
                     return [2, res];
                 case 2:
-                    err_1 = _a.sent();
+                    err_1 = _b.sent();
                     if (options && options.errorHandler) {
                         options.errorHandler(err_1);
                     }
