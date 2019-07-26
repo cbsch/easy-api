@@ -76,7 +76,11 @@ export function generateInsert<T>(def: Table<T>, data: T): string {
 export function generateUpdate<T>(def: Table<T>, data: T): string {
     const validColumns = def.columns.map(c => { 
         if (c.type === "reference") { return `${c.name}_id`} else { return c.name }
-    }).filter(s => { return s !== 'id'})
+    }).filter(
+        s => { return s !== 'id'}
+    ).filter(
+        s => Object.keys(data).find(d => d === s)
+    )
 
     const columns = Object.keys(data).filter(v => validColumns.indexOf(v) > -1)
     let setStatements: string[] = []

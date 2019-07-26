@@ -76,7 +76,7 @@ function generateUpdate(def, data) {
         else {
             return c.name;
         }
-    }).filter(function (s) { return s !== 'id'; });
+    }).filter(function (s) { return s !== 'id'; }).filter(function (s) { return Object.keys(data).find(function (d) { return d === s; }); });
     var columns = Object.keys(data).filter(function (v) { return validColumns.indexOf(v) > -1; });
     var setStatements = [];
     columns.forEach(function (c) {
