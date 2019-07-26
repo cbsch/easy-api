@@ -82,4 +82,8 @@ describe('client api (complex)', () => {
 
         const res3 = (await api.complex.query().filter.created_by_id.eq(100).get())
     })
+
+    it ('should put a partial record', async () => {
+        await api.complex.update({id: 1000, name: 'updated'})
+    })
 })
