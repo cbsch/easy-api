@@ -1,52 +1,14 @@
-import { generatedModel as model } from '../src/model';
+
 import * as chai from 'chai'
-import { generateApiCode } from '../src/interface/ts-client-api/generate-ts-client-api'
-chai.should()
-
-describe('generateApiCode', () => {
-    it('should generate correct output', done => {
-        let modelList = Object.keys(model)
-            .filter(k => ['login', 'audit']
-            .includes(k)).map(k => model[k])
-        const apiCode = generateApiCode(modelList).get()
-
-        apiCode.should.eql(`import {
-    login,
-    audit,
-} from './model-interfaces'
-import {
-    loginQueryBuilder,
-    auditQueryBuilder,
-} from './query-interfaces'
-import generateApi, { ApiOptions } from './generated-api-lib'
-
-export default (options?: ApiOptions) => {
-    return {
-        login: generateApi<login, loginQueryBuilder<login>>('login', options),
-        audit: generateApi<audit, auditQueryBuilder<audit>>('audit', options),
-    }
-}
-
-import generateSocketApi, { WSApiOptions } from './generated-ws-api-lib'
-
-export const socketApi = (options?: WSApiOptions) => {
-    return {
-        login: generateSocketApi<login, loginQueryBuilder<login>>('login', options),
-        audit: generateSocketApi<audit, auditQueryBuilder<audit>>('audit', options),
-    }
-}
-`)
-
-        done()
-    })
-})
-
 import 'chai-http'
 chai.should()
 chai.use(require('chai-http'))
-import { api, range } from './helpers'
+import { socketApi as api, range, db, cleanDb, genericBefore } from './helpers'
 
-describe('client api (login)', () => {
+
+
+describe('socket client api (login)', () => {
+    before(genericBefore)
     const name = 'client-api-login-should-post'
     it('should post', async () => {
         const data = await api.login.insert({name: name})
@@ -60,7 +22,8 @@ describe('client api (login)', () => {
     })
 })
 
-describe('client api (complex)', () => {
+describe('socket client api (complex)', () => {
+    before(genericBefore)
     const nameBase = 'client-api-complex-should-post'
     const values = range(10, 90).map(v => {
         return {

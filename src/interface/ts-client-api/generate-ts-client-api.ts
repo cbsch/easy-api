@@ -16,6 +16,11 @@ export default function writeClientApi(models: GeneratedModel<any>[], path: stri
     const template = readFileSync(join(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'))
     writeFileSync(templatePath, template)
 
+    writeFileSync(
+        join(path, 'generated-ws-api-lib.ts'),
+        readFileSync(join(__dirname, '../../../src/interface/ts-client-api/ts-ws-api-template.ts'))
+    )
+
     const modelJsonPath = join(path, 'models.json')
     const modelJson = generateModel(models)
     writeFileSync(modelJsonPath, modelJson)
@@ -47,6 +52,17 @@ export function generateApiCode(models: GeneratedModel<any>[]) {
     code.addln('return {').indent()
     for (let def of defs) {
         code.addln(`${def.name}: generateApi<${def.name}, ${def.name}QueryBuilder<${def.name}>>('${def.name}', options),`)
+    }
+    code.unindent().addln('}')
+    code.unindent().addln('}')
+
+    code.addln()
+    code.addln(`import generateSocketApi, { WSApiOptions } from './generated-ws-api-lib'`).addln()
+
+    code.addln('export const socketApi = (options?: WSApiOptions) => {').indent()
+    code.addln('return {').indent()
+    for (let def of defs) {
+        code.addln(`${def.name}: generateSocketApi<${def.name}, ${def.name}QueryBuilder<${def.name}>>('${def.name}', options),`)
     }
     code.unindent().addln('}')
     code.unindent().addln('}')

@@ -46,12 +46,6 @@ export const requestFactory = (options?: ApiOptions): Request => {
     }
 }
 
-
-
-export function queryBuilderRequestFactory<T, QB extends QueryBuilder<T>> (table: Table<T>, request: Request) {
-    let queryBuilder = queryBuilderFactory<T, QB>(table)
-}
-
 const modelList: Table<any>[] = require('./models.json')
 
 export default function generateApi<T, QB extends QueryBuilder<T>>(modelName: string, options?: ApiOptions) {

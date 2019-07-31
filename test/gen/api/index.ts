@@ -17,3 +17,13 @@ export default (options?: ApiOptions) => {
         complex: generateApi<complex, complexQueryBuilder<complex>>('complex', options),
     }
 }
+
+import generateSocketApi, { WSApiOptions } from './generated-ws-api-lib'
+
+export const socketApi = (options?: WSApiOptions) => {
+    return {
+        login: generateSocketApi<login, loginQueryBuilder<login>>('login', options),
+        audit: generateSocketApi<audit, auditQueryBuilder<audit>>('audit', options),
+        complex: generateSocketApi<complex, complexQueryBuilder<complex>>('complex', options),
+    }
+}

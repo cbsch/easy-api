@@ -12,6 +12,7 @@ function writeClientApi(models, path) {
     var templatePath = path_1.join(path, 'generated-api-lib.ts');
     var template = fs_1.readFileSync(path_1.join(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'));
     fs_1.writeFileSync(templatePath, template);
+    fs_1.writeFileSync(path_1.join(path, 'generated-ws-api-lib.ts'), fs_1.readFileSync(path_1.join(__dirname, '../../../src/interface/ts-client-api/ts-ws-api-template.ts')));
     var modelJsonPath = path_1.join(path, 'models.json');
     var modelJson = generateModel(models);
     fs_1.writeFileSync(modelJsonPath, modelJson);
@@ -44,6 +45,16 @@ function generateApiCode(models) {
     }
     code.unindent().addln('}');
     code.unindent().addln('}');
+    code.addln();
+    code.addln("import generateSocketApi, { WSApiOptions } from './generated-ws-api-lib'").addln();
+    code.addln('export const socketApi = (options?: WSApiOptions) => {').indent();
+    code.addln('return {').indent();
+    for (var _c = 0, defs_4 = defs; _c < defs_4.length; _c++) {
+        var def = defs_4[_c];
+        code.addln(def.name + ": generateSocketApi<" + def.name + ", " + def.name + "QueryBuilder<" + def.name + ">>('" + def.name + "', options),");
+    }
+    code.unindent().addln('}');
+    code.unindent().addln('}');
     return code;
 }
 exports.generateApiCode = generateApiCode;
@@ -56,8 +67,8 @@ function generateQueryBuilderInterfaces(models) {
     var defs = models.map(function (model) { return model.definition; });
     var code = codebuilder_1.default();
     code.addln("import { Filter, OrderBy } from './query'");
-    for (var _i = 0, defs_4 = defs; _i < defs_4.length; _i++) {
-        var def = defs_4[_i];
+    for (var _i = 0, defs_5 = defs; _i < defs_5.length; _i++) {
+        var def = defs_5[_i];
         var ifName = def.name + "QueryBuilder<T>";
         code.addln("export interface " + ifName + " {").indent();
         code.addln("filter: {").indent();

@@ -36,53 +36,87 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = require("axios");
 var query_1 = require("./query");
+var socket = null;
+var messageQueue = [];
+var requests = {};
+var nextRequestId = 0;
+var _options = null;
+function ensureSocketConnection() {
+    if (socket && socket.readyState !== socket.CLOSED && socket.readyState !== socket.CLOSING) {
+        return;
+    }
+    var url = _options.url;
+    socket = new WebSocket(url);
+    socket.onopen = function (ev) {
+        flushMessageQueue();
+    };
+    socket.onmessage = function (ev) {
+        var res = JSON.parse(ev.data);
+        if (undefined !== res.id) {
+            requests[res.id](res.data);
+            delete requests[res.id];
+        }
+    };
+    socket.onclose = function (ev) {
+        ensureSocketConnection();
+    };
+    window.onbeforeunload = function (ev) {
+        socket.close();
+    };
+}
+function flushMessageQueue() {
+    if (socket.readyState !== socket.OPEN) {
+        return;
+    }
+    while (messageQueue.length > 0) {
+        var message = messageQueue.shift();
+        socket.send(JSON.stringify(message));
+    }
+}
 exports.requestFactory = function (options) {
-    return function (url, method, data) { return __awaiter(_this, void 0, void 0, function () {
-        var headers, _i, _a, key, res, err_1;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _b.trys.push([0, 2, , 3]);
-                    if (options && options.url) {
-                        url = options.url + url;
+    return function (item, query, method, data) { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            ensureSocketConnection();
+            return [2, new Promise(function (resolve, reject) {
+                    try {
+                        var id = nextRequestId++;
+                        requests[id] = function (data) {
+                            resolve(data);
+                        };
+                        if (query) {
+                            query = query.substring(1);
+                        }
+                        var message = {
+                            method: method,
+                            item: item,
+                            query: query,
+                            id: id,
+                            data: data
+                        };
+                        messageQueue.push(message);
+                        flushMessageQueue();
+                        var timeout_1 = 2000;
+                        setTimeout(function () {
+                            reject(method + " " + item + " with query " + query + " timed out after " + timeout_1 + "ms");
+                        }, timeout_1);
                     }
-                    headers = {};
-                    if (options && options.headers) {
-                        headers = options.headers;
-                    }
-                    if (options && options.headerCallbacks) {
-                        for (_i = 0, _a = Object.keys(options.headerCallbacks); _i < _a.length; _i++) {
-                            key = _a[_i];
-                            headers[key] = options.headerCallbacks[key]();
+                    catch (err) {
+                        if (options && options.errorHandler) {
+                            options.errorHandler(err);
+                        }
+                        else {
+                            throw err;
                         }
                     }
-                    return [4, axios_1.default.request({
-                            method: method,
-                            url: url,
-                            headers: headers,
-                            data: data
-                        })];
-                case 1:
-                    res = _b.sent();
-                    return [2, res];
-                case 2:
-                    err_1 = _b.sent();
-                    if (options && options.errorHandler) {
-                        options.errorHandler(err_1);
-                    }
-                    else {
-                        throw err_1;
-                    }
-                    return [3, 3];
-                case 3: return [2];
-            }
+                })];
         });
     }); };
 };
 var modelList = require('./models.json');
 function generateApi(modelName, options) {
+    _options = options;
+    ensureSocketConnection();
     var request = exports.requestFactory(options);
     var table = modelList.filter(function (t) { return t.name === modelName; })[0];
     return {
@@ -99,19 +133,19 @@ function getByIdFactory(modelName, request) {
     var _this = this;
     return function (id) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var response, err_2;
+            var response, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4, request(modelName + '/?filters=id=' + id, 'get')];
+                        return [4, request(modelName, 'filters=id=' + id, 'GET')];
                     case 1:
                         response = _a.sent();
-                        resolve(response.data.data[0]);
+                        resolve(response[0]);
                         return [3, 3];
                     case 2:
-                        err_2 = _a.sent();
-                        reject(err_2);
+                        err_1 = _a.sent();
+                        reject(err_1);
                         return [3, 3];
                     case 3: return [2];
                 }
@@ -123,28 +157,23 @@ function getFactory(modelName, request) {
     var _this = this;
     return function (query) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var path, response, data, err_3;
+            var response, data, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        path = modelName;
-                        if (query) {
-                            path += query;
-                        }
-                        return [4, request(path, 'get')];
+                        return [4, request(modelName, query, 'GET')];
                     case 1:
                         response = _a.sent();
                         if (!response) {
                             return [2];
                         }
-                        data = response.data.data;
+                        data = response;
                         resolve(data);
                         return [3, 3];
                     case 2:
-                        err_3 = _a.sent();
-                        console.log("GET " + path + " : " + err_3.status);
-                        resolve([]);
+                        err_2 = _a.sent();
+                        reject(err_2);
                         return [3, 3];
                     case 3: return [2];
                 }
@@ -156,21 +185,19 @@ function removeFactory(modelName, request) {
     var _this = this;
     return function (data) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var url, response, err_4;
+            var response, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        url = modelName;
-                        console.log(url);
-                        return [4, request(url, 'delete', data)];
+                        return [4, request(modelName, undefined, 'DELETE', data)];
                     case 1:
                         response = _a.sent();
-                        resolve(response.data.data);
+                        resolve(response);
                         return [3, 3];
                     case 2:
-                        err_4 = _a.sent();
-                        reject(err_4);
+                        err_3 = _a.sent();
+                        reject(err_3);
                         return [3, 3];
                     case 3: return [2];
                 }
@@ -182,20 +209,19 @@ function insertFactory(modelName, request) {
     var _this = this;
     return function (data) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var path, response, err_5;
+            var response, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        path = modelName;
-                        return [4, request(path, 'post', data)];
+                        return [4, request(modelName, undefined, 'POST', data)];
                     case 1:
                         response = _a.sent();
-                        resolve(response.data.data);
+                        resolve(response);
                         return [3, 3];
                     case 2:
-                        err_5 = _a.sent();
-                        reject(err_5);
+                        err_4 = _a.sent();
+                        reject(err_4);
                         return [3, 3];
                     case 3: return [2];
                 }
@@ -207,19 +233,19 @@ function updateFactory(modelName, request) {
     var _this = this;
     return function (data) {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var response, err_6;
+            var response, err_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4, request(modelName, 'put', data)];
+                        return [4, request(modelName, undefined, 'PUT', data)];
                     case 1:
                         response = _a.sent();
-                        resolve(response.data.data);
+                        resolve(response);
                         return [3, 3];
                     case 2:
-                        err_6 = _a.sent();
-                        reject(err_6);
+                        err_5 = _a.sent();
+                        reject(err_5);
                         return [3, 3];
                     case 3: return [2];
                 }
@@ -227,4 +253,4 @@ function updateFactory(modelName, request) {
         }); });
     };
 }
-//# sourceMappingURL=ts-api-template.js.map
+//# sourceMappingURL=ts-ws-api-template.js.map
