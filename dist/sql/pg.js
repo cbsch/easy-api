@@ -34,6 +34,9 @@ function generateCreateColumn(def) {
     if (def.pk) {
         sqlString += ' PRIMARY KEY';
     }
+    if (def.default) {
+        sqlString += " DEFAULT '" + def.default + "'";
+    }
     return sqlString;
 }
 exports.generateCreateColumn = generateCreateColumn;

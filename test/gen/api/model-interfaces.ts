@@ -20,6 +20,7 @@ export interface complex {
     value?: number
     enabled?: boolean
     timestamp?: Date
+    default_false?: boolean
     created_by_id?: number
     modified_by_id?: number
     relations?: {

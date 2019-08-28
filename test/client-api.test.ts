@@ -85,9 +85,11 @@ describe('client api (complex)', () => {
         await api.complex.insert({name: 'test-name2', enabled: false, timestamp: (new Date)})
         const res1 = (await api.complex.query().filter.name.eq(`test-name1`).get())[0]
         res1.should.have.property('name').eql('test-name1')
+        res1.should.have.property('default_false').eql(false)
 
         const res2 = (await api.complex.query().filter.name.eq(`test-name2`).get())[0]
         res2.should.have.property('name').eql('test-name2')
+        res2.should.have.property('default_false').eql(false)
 
         const res3 = (await api.complex.query().filter.created_by_id.eq(100).get())
     })

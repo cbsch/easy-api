@@ -55,6 +55,10 @@ export const complexTable: Table<any> = {
     }, {
         name: 'timestamp',
         type: 'date'
+    }, {
+        name: 'default_false',
+        type: 'boolean',
+        default: 'false'
     }]
 
 }

@@ -87,6 +87,11 @@ export const requestFactory = (options?: WSApiOptions): Request => {
                 messageQueue.push(message)
 
                 flushMessageQueue()
+
+                const timeout = 2000
+                setTimeout(() => {
+                    reject(`${method} ${item} with query ${query} timed out after ${timeout}ms`)
+                }, timeout)
             } catch (err) {
                 if (options && options.errorHandler) {
                     options.errorHandler(err)
@@ -111,7 +116,7 @@ export default function generateApi<T, QB extends QueryBuilder<T>>(modelName: st
         update: updateFactory<T>(modelName, request),
         insert: insertFactory<T>(modelName, request),
         remove: removeFactory<T>(modelName, request),
-        query: queryBuilderFactory<T, QB>(table, (query) => { return getFactory<T>(modelName, request)(query) } ),
+        query: queryBuilderFactory<T, QB>(table, (query) => { return getFactory<T>(modelName, request)(query) }),
     }
 }
 

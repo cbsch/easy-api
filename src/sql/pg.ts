@@ -34,6 +34,7 @@ export function generateCreateColumn(def: Column) {
     if (def.unique) { sqlString += ' UNIQUE'}
     if (def.notnull) { sqlString += ' NOT NULL'}
     if (def.pk) { sqlString += ' PRIMARY KEY'}
+    if (def.default) { sqlString += ` DEFAULT '${def.default}'`}
 
 
     return sqlString

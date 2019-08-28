@@ -75,6 +75,12 @@
         "reference": null
       },
       {
+        "name": "default_false",
+        "type": "boolean",
+        "default": "false",
+        "reference": null
+      },
+      {
         "name": "created_by",
         "type": "reference",
         "reference": "login",
