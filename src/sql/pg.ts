@@ -35,6 +35,7 @@ export function generateCreateColumn(def: Column) {
     if (def.notnull) { sqlString += ' NOT NULL'}
     if (def.pk) { sqlString += ' PRIMARY KEY'}
     if (def.default) { sqlString += ` DEFAULT '${def.default}'`}
+    if (def.extraColumnSql) { sqlString += ` ${def.extraColumnSql}`}
 
 
     return sqlString

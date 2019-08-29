@@ -2,6 +2,7 @@ export declare type Types = "string" | "number" | "date" | "reference" | "serial
 export interface Column {
     name: string;
     type: Types;
+    extraColumnSql?: string;
     default?: string;
     reference?: string;
     _reference_alias?: string;

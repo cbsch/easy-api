@@ -37,6 +37,9 @@ function generateCreateColumn(def) {
     if (def.default) {
         sqlString += " DEFAULT '" + def.default + "'";
     }
+    if (def.extraColumnSql) {
+        sqlString += " " + def.extraColumnSql;
+    }
     return sqlString;
 }
 exports.generateCreateColumn = generateCreateColumn;
