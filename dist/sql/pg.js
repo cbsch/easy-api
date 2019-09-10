@@ -18,7 +18,8 @@ function generateCreateColumn(def) {
                 def.type === "serial" ? 'SERIAL' :
                     def.type === "boolean" ? 'BOOLEAN' :
                         def.type === "float" ? 'REAL' :
-                            def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
+                            def.type === "uuid" ? 'UUID' :
+                                def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
     if (type === '')
         throw "No type for column " + def.name;
     sqlString += " " + type;

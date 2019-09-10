@@ -7,11 +7,14 @@ import generate_powershell from './generate-powershell'
 import generate_typescript from './generate-typescript'
 import writeClientApi from './ts-client-api/generate-ts-client-api';
 
-export default function generateCode(language: Languages, path: string) {
+export default function generateCode(language: Languages, path: string, namespace?: string) {
     const models = Object.keys(generatedModel).map(key => (generatedModel as {[index: string]: GeneratedModel<any>})[key])
+
+    namespace = namespace ? namespace : "GeneratedApi"
+
     switch(language) {
         case "csharp": {
-            generate_csharp(models, path)
+            generate_csharp(models, path, namespace)
             break;
         }
         case "powershell": {

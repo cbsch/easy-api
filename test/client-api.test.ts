@@ -81,15 +81,17 @@ describe('client api (complex)', () => {
     })
 
     it ('should get', async () => {
-        await api.complex.insert({name: 'test-name1', enabled: true, timestamp: (new Date)})
-        await api.complex.insert({name: 'test-name2', enabled: false, timestamp: (new Date)})
+        await api.complex.insert({name: 'test-name1', enabled: true, timestamp: (new Date), uuid: 'a1b48147-7d82-4e6a-85f8-474287e87e51'})
+        await api.complex.insert({name: 'test-name2', enabled: false, timestamp: (new Date), uuid: 'a5446517-26e7-4d57-ae55-0ca27aa9472d'})
         const res1 = (await api.complex.query().filter.name.eq(`test-name1`).get())[0]
         res1.should.have.property('name').eql('test-name1')
         res1.should.have.property('default_false').eql(false)
+        res1.should.have.property('uuid').eql('a1b48147-7d82-4e6a-85f8-474287e87e51')
 
         const res2 = (await api.complex.query().filter.name.eq(`test-name2`).get())[0]
         res2.should.have.property('name').eql('test-name2')
         res2.should.have.property('default_false').eql(false)
+        res2.should.have.property('uuid').eql('a5446517-26e7-4d57-ae55-0ca27aa9472d')
 
         const res3 = (await api.complex.query().filter.created_by_id.eq(100).get())
     })

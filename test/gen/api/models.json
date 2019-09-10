@@ -75,6 +75,11 @@
         "reference": null
       },
       {
+        "name": "uuid",
+        "type": "uuid",
+        "reference": null
+      },
+      {
         "name": "default_false",
         "type": "boolean",
         "default": "false",

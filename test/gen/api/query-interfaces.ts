@@ -36,6 +36,7 @@ export interface complexQueryBuilder<T> {
         value?: Filter<number, complexQueryBuilder<T>>
         enabled?: Filter<boolean, complexQueryBuilder<T>>
         timestamp?: Filter<Date, complexQueryBuilder<T>>
+        uuid?: Filter<string, complexQueryBuilder<T>>
         default_false?: Filter<boolean, complexQueryBuilder<T>>
         created_by_id?: Filter<number, complexQueryBuilder<T>>
         modified_by_id?: Filter<number, complexQueryBuilder<T>>
@@ -46,6 +47,7 @@ export interface complexQueryBuilder<T> {
         value?: OrderBy<complexQueryBuilder<T>>
         enabled?: OrderBy<complexQueryBuilder<T>>
         timestamp?: OrderBy<complexQueryBuilder<T>>
+        uuid?: OrderBy<complexQueryBuilder<T>>
         default_false?: OrderBy<complexQueryBuilder<T>>
         created_by_id?: OrderBy<complexQueryBuilder<T>>
         modified_by_id?: OrderBy<complexQueryBuilder<T>>

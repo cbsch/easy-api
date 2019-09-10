@@ -56,6 +56,9 @@ export const complexTable: Table<any> = {
         name: 'timestamp',
         type: 'date'
     }, {
+        name: 'uuid',
+        type: 'uuid'
+    }, {
         name: 'default_false',
         type: 'boolean',
         default: 'false'

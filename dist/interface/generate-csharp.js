@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var codebuilder_1 = require("./codebuilder");
-function generateCode(models, path) {
+function generateCode(models, path, namespace) {
     var code = codebuilder_1.default();
     code.addln('using System;').addln('');
-    code.addln('namespace TenantPortal {').indent();
+    code.addln("namespace " + namespace + " {").indent();
     code.addln('public class Api {').indent();
     models.map(function (model) {
         var name = model.definition.name;
@@ -45,6 +45,10 @@ function generateModelClass(table) {
             }
             case 'string': {
                 code.addln("public string " + column.name + ";");
+                break;
+            }
+            case 'uuid': {
+                code.addln("public Guid " + column.name + ";");
                 break;
             }
             default: {

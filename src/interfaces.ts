@@ -1,4 +1,4 @@
-export type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean" | "float"
+export type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean" | "float" | "uuid"
 
 export interface Column {
     name: string

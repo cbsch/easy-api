@@ -3,12 +3,12 @@ import { writeFileSync } from "fs";
 import getCodeBuilder, { CodeBuilder } from "./codebuilder";
 
 
-export default function generateCode(models: GeneratedModel<any>[], path: string) {
+export default function generateCode(models: GeneratedModel<any>[], path: string, namespace: string) {
     const code = getCodeBuilder()
 
     code.addln('using System;').addln('')
 
-    code.addln('namespace TenantPortal {').indent()
+    code.addln(`namespace ${namespace} {`).indent()
     code.addln('public class Api {').indent()
     models.map(model => {
         const name = model.definition.name
@@ -53,6 +53,10 @@ export function generateModelClass(table: Table<any>) {
             }
             case 'string': {
                 code.addln(`public string ${column.name};`)
+                break
+            }
+            case 'uuid': {
+                code.addln(`public Guid ${column.name};`)
                 break
             }
             default: {

@@ -51,6 +51,9 @@ function modelTypeToTSType(type) {
         case 'float': {
             return 'number';
         }
+        case 'uuid': {
+            return 'string';
+        }
         default: {
             return type;
         }
