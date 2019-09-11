@@ -89,6 +89,10 @@ export function generateModelClass(table: Table<any>) {
                 code.addln(`[string]$${column.name}`)
                 break
             }
+            case 'uuid': {
+                code.addln(`[string]$${column.name}`)
+                break
+            }
             default: {
                 code.addln(`[${column.type}]$${column.name}`)
             }

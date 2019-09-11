@@ -74,6 +74,10 @@ function generateModelClass(table) {
                 code.addln("[string]$" + column.name);
                 break;
             }
+            case 'uuid': {
+                code.addln("[string]$" + column.name);
+                break;
+            }
             default: {
                 code.addln("[" + column.type + "]$" + column.name);
             }
