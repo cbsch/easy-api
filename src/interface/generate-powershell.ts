@@ -53,6 +53,10 @@ export function generateEndpointClass(table: Table<any>): CodeBuilder {
     code.addln(`return Invoke-Request -Path "/api/${name}" -Method POST -Body $${name}`)
     code.unindent().addln('}')
 
+    code.addln(`[${name}]delete([${name}]$${name}) {`).indent()
+    code.addln(`return Invoke-Request -Path "/api/${name}" -Method DELETE -Body $${name}`)
+    code.unindent().addln('}')
+
     code.unindent().addln(`}`)
 
     return code
