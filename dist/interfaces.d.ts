@@ -1,6 +1,7 @@
 export declare type Types = "string" | "number" | "date" | "reference" | "serial" | "boolean" | "float" | "uuid";
 export interface Column {
     name: string;
+    prettyName?: string;
     type: Types;
     extraColumnSql?: string;
     default?: string;
@@ -13,6 +14,8 @@ export interface Column {
 }
 export interface Table<T> {
     name: string;
+    prettyName?: string;
+    isLinkTable: boolean;
     columns: Column[];
     autoId?: boolean;
     timetravel?: boolean;
