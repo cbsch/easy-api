@@ -15,7 +15,7 @@ export interface Column {
 export interface Table<T> {
     name: string;
     prettyName?: string;
-    isLinkTable: boolean;
+    isLinkTable?: boolean;
     columns: Column[];
     autoId?: boolean;
     timetravel?: boolean;
