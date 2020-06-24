@@ -24,9 +24,11 @@ function generateCode(language, path, namespace) {
         }
         case "typescript_api": {
             generate_ts_client_api_1.default(models, path);
+            break;
         }
         case "plantuml": {
             generate_plantuml_1.default(models, path);
+            break;
         }
     }
 }

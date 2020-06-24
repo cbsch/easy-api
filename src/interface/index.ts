@@ -28,9 +28,11 @@ export default function generateCode(language: Languages, path: string, namespac
         }
         case "typescript_api": {
             writeClientApi(models, path)
+	    break;
         }
         case "plantuml": {
             generate_plantuml(models, path)
+	    break;
         }
     }
 }
