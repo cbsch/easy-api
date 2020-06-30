@@ -12,7 +12,8 @@ export default function generateCode(models: GeneratedModel<any>[], path: string
     code.addln('public class Api {').indent()
     models.map(model => {
         const name = model.definition.name
-        code.addln(`public static GeneratedApi<${name}> ${name} = new GeneratedApi<${name}>();`)
+        const prettyName = model.definition.prettyName ? model.definition.prettyName : model.definition.name
+        code.addln(`public static GeneratedApi<${name}> ${prettyName} = new GeneratedApi<${name}>();`)
     })
     code.unindent().addln('}')
 
@@ -64,19 +65,6 @@ export function generateModelClass(table: Table<any>) {
             }
         }
     })
-
-    /*
-    let references = table.columns.filter(c => c.type === 'reference')
-    if (references.length > 0) {
-        code.addln(`relations?: {`).indent()
-
-        references.forEach(column => {
-            code.addln(`${column.name}?: ${column.name}`)
-        })
-
-        code.unindent().addln('}')
-    }
-    */
 
     code.unindent().addln('}')
 
