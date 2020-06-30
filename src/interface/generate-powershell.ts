@@ -74,7 +74,7 @@ export function generateModelClass(table: Table<any>) {
                 break
             }
             case 'date': {
-                code.addln(`[Nullable[DateTime]]$${column.name}`)
+                code.addln(`[nullable[DateTime]]$${column.name}`)
                 break
             }
             case 'boolean': {
