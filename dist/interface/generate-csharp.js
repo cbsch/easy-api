@@ -9,7 +9,8 @@ function generateCode(models, path, namespace) {
     code.addln('public class Api {').indent();
     models.map(function (model) {
         var name = model.definition.name;
-        code.addln("public static GeneratedApi<" + name + "> " + name + " = new GeneratedApi<" + name + ">();");
+        var prettyName = model.definition.prettyName ? model.definition.prettyName : model.definition.name;
+        code.addln("public static GeneratedApi<" + name + "> " + prettyName + " = new GeneratedApi<" + name + ">();");
     });
     code.unindent().addln('}');
     models.forEach(function (model) {
