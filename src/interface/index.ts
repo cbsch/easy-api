@@ -9,11 +9,11 @@ import generate_plantuml from './generate-plantuml'
 import writeClientApi from './ts-client-api/generate-ts-client-api';
 
 export default function generateCode(language: Languages, path: string, namespace?: string) {
-    const models = Object.keys(generatedModel).map(key => (generatedModel as {[index: string]: GeneratedModel<any>})[key])
+    const models = Object.keys(generatedModel).map(key => (generatedModel as { [index: string]: GeneratedModel<any> })[key])
 
     namespace = namespace ? namespace : "GeneratedApi"
 
-    switch(language) {
+    switch (language) {
         case "csharp": {
             generate_csharp(models, path, namespace)
             break;
@@ -28,11 +28,11 @@ export default function generateCode(language: Languages, path: string, namespac
         }
         case "typescript_api": {
             writeClientApi(models, path)
-	    break;
+            break;
         }
         case "plantuml": {
             generate_plantuml(models, path)
-	    break;
+            break;
         }
     }
 }
