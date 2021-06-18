@@ -42,7 +42,8 @@ function generateFunction(table) {
     code.addln("if ($Query) {").indent();
     code.addln("$path += $Query").unindent();
     code.addln("}");
-    code.addln("return Invoke-Request -Path $Path");
+    code.addln("return Invoke-Request -Path $Path").unindent();
+    code.addln("}");
     return code;
 }
 exports.generateFunction = generateFunction;
