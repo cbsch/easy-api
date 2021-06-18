@@ -3,15 +3,18 @@ import { writeFileSync } from "fs";
 import getCodeBuilder, { CodeBuilder } from "./codebuilder";
 
 
-export default function generateCode(models: GeneratedModel<any>[], path: string) {
+export default function generateCode(models: GeneratedModel<any>[], path: string, requestFnName?: string, cmdletPrefix?: string) {
     const code = getCodeBuilder()
 
+    requestFnName = requestFnName ? requestFnName : "Invoke-Request"
+    cmdletPrefix = cmdletPrefix ? cmdletPrefix : "GEN"
+
     models.forEach(model => {
-        code.addcontainer(generateFunction(model.definition))
+        code.addcontainer(generateFunction(model.definition, requestFnName, cmdletPrefix))
     })
 
     models.forEach(model => {
-        code.addcontainer(generateEndpointClass(model.definition))
+        code.addcontainer(generateEndpointClass(model.definition, requestFnName))
     })
 
     models.forEach(model => {
@@ -32,37 +35,61 @@ export default function generateCode(models: GeneratedModel<any>[], path: string
     writeFileSync(path, code.get())
 }
 
-export function generateFunction(table: Table<any>): CodeBuilder {
+export function generateFunction(table: Table<any>, requestFnName: string, cmdletPrefix: string): CodeBuilder {
     const code = getCodeBuilder()
     const name = table.name
     const prettyName = table.prettyName ? table.prettyName : table.name
 
-    code.addln(`Function Get-AP${prettyName} {`).indent()
+    code.addln(`Function Get-${cmdletPrefix}${prettyName} {`).indent()
     code.addln(`[OutputType([${name}])]`)
     code.addln(`Param(`).indent()
     code.addln(`[Parameter()][int]$Id,`)
     code.addln(`[Parameter()][string]$Query`).unindent()
     code.addln(`)`)
     code.addln(`$path = "/api/${name}"`)
-    code.addln(`if ($Id) {`).indent()
-    code.addln(`$Query = "?filters=id=$Id"`).unindent()
+    code.addln(`if ($Id) { $Query = "?filters=id=$Id" }`)
+    code.addln(`if ($Query) { $path += $Query }`)
+    code.addln(`return ${requestFnName} -Path $Path`).unindent()
     code.addln(`}`)
-    code.addln(`if ($Query) {`).indent()
-    code.addln(`$path += $Query`).unindent()
+    code.addln('')
+
+    code.addln(`Function New-${cmdletPrefix}${prettyName} {`).indent()
+    code.addln(`[OutputType([${name}])]`)
+    code.addln(`Param(`).indent()
+    code.addln(`[Parameter()][PSObject]$Object`).unindent()
+    code.addln(`)`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method POST -Body $Object`).unindent()
     code.addln(`}`)
-    code.addln(`return Invoke-Request -Path $Path`).unindent()
+    code.addln('')
+
+    code.addln(`Function Set-${cmdletPrefix}${prettyName} {`).indent()
+    code.addln(`[OutputType([${name}])]`)
+    code.addln(`Param(`).indent()
+    code.addln(`[Parameter()][PSObject]$Object`).unindent()
+    code.addln(`)`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method PUT -Body $Object`).unindent()
     code.addln(`}`)
+    code.addln('')
+
+    code.addln(`Function Remove-${cmdletPrefix}${prettyName} {`).indent()
+    code.addln(`[OutputType([${name}])]`)
+    code.addln(`Param(`).indent()
+    code.addln(`[Parameter()][PSObject]$Object`).unindent()
+    code.addln(`)`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method DELETE -Body $Object`).unindent()
+    code.addln(`}`)
+    code.addln('')
 
     return code
 }
 
-export function generateEndpointClass(table: Table<any>): CodeBuilder {
+export function generateEndpointClass(table: Table<any>, requestFnName: string): CodeBuilder {
     const code = getCodeBuilder()
     const name = table.name
     code.addln(`class ${table.name}_endpoint {`).indent()
 
     code.addln(`[PSObject]getById([int]$Id) {`).indent()
-    code.addln(`return Invoke-Request -Path "/api/${name}?filters=id=$Id"`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}?filters=id=$Id"`)
     code.unindent().addln('}')
 
     code.addln(`[PSObject[]]get() {`).indent()
@@ -70,19 +97,19 @@ export function generateEndpointClass(table: Table<any>): CodeBuilder {
     code.unindent().addln('}')
 
     code.addln(`[PSObject[]]get([string]$Query) {`).indent()
-    code.addln(`return Invoke-Request -Path "/api/${name}$Query"`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}$Query"`)
     code.unindent().addln('}')
 
     code.addln(`[PSObject]put([${name}]$${name}) {`).indent()
-    code.addln(`return Invoke-Request -Path "/api/${name}" -Method PUT -Body $${name}`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method PUT -Body $${name}`)
     code.unindent().addln('}')
 
     code.addln(`[PSObject]post([${name}]$${name}) {`).indent()
-    code.addln(`return Invoke-Request -Path "/api/${name}" -Method POST -Body $${name}`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method POST -Body $${name}`)
     code.unindent().addln('}')
 
     code.addln(`[PSObject]delete([${name}]$${name}) {`).indent()
-    code.addln(`return Invoke-Request -Path "/api/${name}" -Method DELETE -Body $${name}`)
+    code.addln(`return ${requestFnName} -Path "/api/${name}" -Method DELETE -Body $${name}`)
     code.unindent().addln('}')
 
     code.unindent().addln(`}`)

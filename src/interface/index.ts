@@ -36,3 +36,9 @@ export default function generateCode(language: Languages, path: string, namespac
         }
     }
 }
+
+export function generatePowershell(path: string, requestFnName: string, cmdletPrefix: string) {
+    const models = Object.keys(generatedModel).map(key => (generatedModel as { [index: string]: GeneratedModel<any> })[key])
+
+    generate_powershell(models, path, requestFnName, cmdletPrefix)
+}

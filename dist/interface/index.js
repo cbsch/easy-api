@@ -33,4 +33,9 @@ function generateCode(language, path, namespace) {
     }
 }
 exports.default = generateCode;
+function generatePowershell(path, requestFnName, cmdletPrefix) {
+    var models = Object.keys(model_1.generatedModel).map(function (key) { return model_1.generatedModel[key]; });
+    generate_powershell_1.default(models, path, requestFnName, cmdletPrefix);
+}
+exports.generatePowershell = generatePowershell;
 //# sourceMappingURL=index.js.map
