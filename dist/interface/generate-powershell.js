@@ -33,7 +33,7 @@ function generateFunction(table) {
     code.addln("[OutputType([" + name + "])]");
     code.addln("Param(").indent();
     code.addln("[Parameter()][int]$Id,");
-    code.addln("[Parameter()][string]$Query,").unindent();
+    code.addln("[Parameter()][string]$Query").unindent();
     code.addln(")");
     code.addln("$path = \"/api/" + name + "\"");
     code.addln("if ($Id) {").indent();
