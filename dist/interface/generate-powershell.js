@@ -5,6 +5,9 @@ var codebuilder_1 = require("./codebuilder");
 function generateCode(models, path) {
     var code = codebuilder_1.default();
     models.forEach(function (model) {
+        code.addcontainer(generateFunction(model.definition));
+    });
+    models.forEach(function (model) {
         code.addcontainer(generateEndpointClass(model.definition));
     });
     models.forEach(function (model) {
@@ -22,26 +25,47 @@ function generateCode(models, path) {
     fs_1.writeFileSync(path, code.get());
 }
 exports.default = generateCode;
+function generateFunction(table) {
+    var code = codebuilder_1.default();
+    var name = table.name;
+    var prettyName = table.prettyName ? table.prettyName : table.name;
+    code.addln("Function Get-AP" + prettyName + " {").indent();
+    code.addln("[OutputType([" + name + "])]");
+    code.addln("Param(").indent();
+    code.addln("[Parameter()][int]$Id,");
+    code.addln("[Parameter()][string]$Query,").unindent();
+    code.addln(")");
+    code.addln("$path = \"/api/" + name + "\"");
+    code.addln("if ($Id) {").indent();
+    code.addln("$Query = \"?filters=id=$Id\"").unindent();
+    code.addln("}");
+    code.addln("if ($Query) {").indent();
+    code.addln("$path += $Query").unindent();
+    code.addln("}");
+    code.addln("return Invoke-Request -Path $Path");
+    return code;
+}
+exports.generateFunction = generateFunction;
 function generateEndpointClass(table) {
     var code = codebuilder_1.default();
     var name = table.name;
     code.addln("class " + table.name + "_endpoint {").indent();
-    code.addln("[" + name + "]getById([int]$Id) {").indent();
+    code.addln("[PSObject]getById([int]$Id) {").indent();
     code.addln("return Invoke-Request -Path \"/api/" + name + "?filters=id=$Id\"");
     code.unindent().addln('}');
-    code.addln("[" + name + "[]]get() {").indent();
+    code.addln("[PSObject[]]get() {").indent();
     code.addln("return $this.get(\"\")");
     code.unindent().addln('}');
-    code.addln("[" + name + "[]]get([string]$Query) {").indent();
+    code.addln("[PSObject[]]get([string]$Query) {").indent();
     code.addln("return Invoke-Request -Path \"/api/" + name + "$Query\"");
     code.unindent().addln('}');
-    code.addln("[" + name + "]put([" + name + "]$" + name + ") {").indent();
+    code.addln("[PSObject]put([" + name + "]$" + name + ") {").indent();
     code.addln("return Invoke-Request -Path \"/api/" + name + "\" -Method PUT -Body $" + name);
     code.unindent().addln('}');
-    code.addln("[" + name + "]post([" + name + "]$" + name + ") {").indent();
+    code.addln("[PSObject]post([" + name + "]$" + name + ") {").indent();
     code.addln("return Invoke-Request -Path \"/api/" + name + "\" -Method POST -Body $" + name);
     code.unindent().addln('}');
-    code.addln("[" + name + "]delete([" + name + "]$" + name + ") {").indent();
+    code.addln("[PSObject]delete([" + name + "]$" + name + ") {").indent();
     code.addln("return Invoke-Request -Path \"/api/" + name + "\" -Method DELETE -Body $" + name);
     code.unindent().addln('}');
     code.unindent().addln("}");
