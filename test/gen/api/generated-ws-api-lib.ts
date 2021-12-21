@@ -45,7 +45,7 @@ function ensureSocketConnection() {
         ensureSocketConnection()
     }
 
-    window.onbeforeunload = ev => {
+    window.onbeforeunload = (ev: any) => {
         // Close the connection when the window unloads
         socket.close();
     }

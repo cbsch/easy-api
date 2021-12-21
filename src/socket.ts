@@ -18,7 +18,7 @@ export default function createSocketServer(httpServer: https.Server | http.Serve
             })
         }
     })
-} 
+}
 
 interface WebSocketEx extends WebSocket {
     isAlive: boolean

@@ -3,9 +3,25 @@ import * as chai from 'chai'
 import 'chai-http'
 chai.should()
 chai.use(require('chai-http'))
-import { socketApi as api, range, db, cleanDb, genericBefore } from './helpers'
+import { wsurl, range, db, cleanDb, genericBefore } from './helpers'
 
 
+// Setup some stuff in the global object that the socket api requires
+// declare global {
+//     namespace NodeJS {
+//         interface Global {
+//             WebSocket: WebSocket
+//             window: {}
+//         }
+//     }
+// }
+
+// global['WebSocket'] = require('ws')
+// global['window'] = { onbeforeunload: null }
+
+
+import { socketApi as socketApiGenerator } from './gen/api'
+const api = socketApiGenerator({url: wsurl()})
 
 describe('socket client api (login)', () => {
     before(genericBefore)

@@ -21,7 +21,7 @@ describe('generateSelect', () => {
     it('should return sql', () => {
         const obj = queryToObject('filters=name[100,101]');
         const sql = generateSelect(testTable, obj);
-        
+
         expect(sql).equal(
 `SELECT testTable.id, testTable.name
 FROM testTable

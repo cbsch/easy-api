@@ -9,15 +9,8 @@ chai.use(require('chai-http'))
 
 describe('login', () => {
     before(async () => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await cleanDb(db)
-                await login.insert({ name: 'Test User' })
-                resolve()
-            } catch (ex) {
-                reject(ex)
-            }
-        })
+        await cleanDb(db)
+        await login.insert({ name: 'Test User' })
     })
     it('should post', async () => {
         return new Promise(async (resolve, reject) => {
