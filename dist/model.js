@@ -11,10 +11,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -45,7 +46,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.modelWrapper = exports.queryToObject = exports.emitter = exports.generatedModel = void 0;
 var events = require("events");
 var debugFactory = require("debug");
 var querystring = require("querystring");
@@ -120,21 +131,21 @@ function model(db, def) {
     if (generatedModel[def.name]) {
         return generatedModel[def.name];
     }
-    debug("generating table " + def.name + " on db " + db);
-    def.columns = [{ name: 'id', type: 'serial', pk: true }].concat(def.columns);
+    debug("generating table ".concat(def.name, " on db ").concat(db));
+    def.columns = __spreadArray([{ name: 'id', type: 'serial', pk: true }], def.columns, true);
     def.columns = def.columns.map(function (c) {
-        return __assign({}, c, { reference: c.reference ? c.reference : c.type === "reference" ? c.name : null });
+        return __assign(__assign({}, c), { reference: c.reference ? c.reference : c.type === "reference" ? c.name : null });
     });
     if (def.audit) {
-        def.columns = def.columns.concat([
+        def.columns = __spreadArray(__spreadArray([], def.columns, true), [
             { name: 'created_by', type: 'reference', reference: def.audit },
             { name: 'modified_by', type: 'reference', reference: def.audit }
-        ]);
+        ], false);
     }
     var aliasNumber = 0;
     def.columns = def.columns.map(function (c) {
         if (c.type === 'reference') {
-            return __assign({}, c, { _reference_alias: "" + c.reference + aliasNumber++ });
+            return __assign(__assign({}, c), { _reference_alias: "".concat(c.reference).concat(aliasNumber++) });
         }
         else {
             return c;
@@ -142,7 +153,7 @@ function model(db, def) {
     });
     var model = {
         definition: def,
-        createText: pg_1.generateCreateTable(def),
+        createText: (0, pg_1.generateCreateTable)(def),
         create: createFactory(db, def),
         drop: dropFactory(db, def),
         insert: insertFactory(db, def),
@@ -163,7 +174,7 @@ function deleteFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4, db.oneOrNone("DELETE FROM " + def.name + " WHERE id = $[id] RETURNING *;", { id: id })];
+                        return [4, db.oneOrNone("DELETE FROM ".concat(def.name, " WHERE id = $[id] RETURNING *;"), { id: id })];
                     case 1:
                         result = _a.sent();
                         resolve(result);
@@ -181,7 +192,7 @@ function deleteFactory(db, def) {
 function updateFactory(db, def) {
     var _this = this;
     return function (data) {
-        var sqlText = pg_1.generateUpdate(def, data);
+        var sqlText = (0, pg_1.generateUpdate)(def, data);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var result, err_2;
             return __generator(this, function (_a) {
@@ -191,7 +202,7 @@ function updateFactory(db, def) {
                         return [4, db.oneOrNone(sqlText, data)];
                     case 1:
                         result = _a.sent();
-                        emitter.emit(def.name + "_update", result);
+                        emitter.emit("".concat(def.name, "_update"), result);
                         resolve(result);
                         return [3, 3];
                     case 2:
@@ -213,11 +224,11 @@ function insertFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        sqlText = pg_1.generateInsert(def, data);
+                        sqlText = (0, pg_1.generateInsert)(def, data);
                         return [4, db.oneOrNone(sqlText, data)];
                     case 1:
                         result = _a.sent();
-                        emitter.emit(def.name + "_insert", result);
+                        emitter.emit("".concat(def.name, "_insert"), result);
                         resolve(result);
                         return [3, 3];
                     case 2:
@@ -239,14 +250,14 @@ function dropFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4, db.none("DROP TABLE IF EXISTS " + def.name + ";")];
+                        return [4, db.none("DROP TABLE IF EXISTS ".concat(def.name, ";"))];
                     case 1:
                         _a.sent();
                         resolve();
                         return [3, 3];
                     case 2:
                         err_4 = _a.sent();
-                        debug("unable to drop table " + def.name);
+                        debug("unable to drop table ".concat(def.name));
                         reject(err_4);
                         return [3, 3];
                     case 3: return [2];
@@ -257,7 +268,7 @@ function dropFactory(db, def) {
 }
 function createFactory(db, def) {
     var _this = this;
-    var sqlText = pg_1.generateCreateTable(def);
+    var sqlText = (0, pg_1.generateCreateTable)(def);
     return function () {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var err_5;
@@ -272,7 +283,7 @@ function createFactory(db, def) {
                         return [3, 3];
                     case 2:
                         err_5 = _a.sent();
-                        debug("failed to create table " + def.name);
+                        debug("failed to create table ".concat(def.name));
                         reject(err_5);
                         return [3, 3];
                     case 3: return [2];
@@ -290,9 +301,9 @@ function findFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        debug("find called on " + def.name);
+                        debug("find called on ".concat(def.name));
                         args = queryToObject(query);
-                        sqlText = pg_1.generateSelect(def, args);
+                        sqlText = (0, pg_1.generateSelect)(def, args);
                         obj = {};
                         if (args && args.filters) {
                             args.filters.forEach(function (a) { obj[a.column] = a.value; });
@@ -300,9 +311,9 @@ function findFactory(db, def) {
                         return [4, db.manyOrNone(sqlText, obj)];
                     case 1:
                         result = _a.sent();
-                        debug("found " + result.length + " " + def.name);
+                        debug("found ".concat(result.length, " ").concat(def.name));
                         if (args && args.relations) {
-                            pg_1.mapRelations(result);
+                            (0, pg_1.mapRelations)(result);
                         }
                         resolve(result);
                         return [3, 3];

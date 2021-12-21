@@ -5,14 +5,14 @@ var testFilter = function () {
     var query = [];
     function filter(columnName) {
         return {
-            eq: function (value) { filters.push(columnName + "=" + value); return chain; },
-            in: function (value) { filters.push(columnName + "[" + value.join(';') + "]"); return chain; }
+            eq: function (value) { filters.push("".concat(columnName, "=").concat(value)); return chain; },
+            in: function (value) { filters.push("".concat(columnName, "[").concat(value.join(';'), "]")); return chain; }
         };
     }
     function orderby(column) {
         return {
-            asc: function () { query.push(column + " asc"); return chain; },
-            desc: function () { query.push(column + " desc"); return chain; }
+            asc: function () { query.push("".concat(column, " asc")); return chain; },
+            desc: function () { query.push("".concat(column, " desc")); return chain; }
         };
     }
     var chain = {
@@ -26,8 +26,8 @@ var testFilter = function () {
         },
         relations: function () { query.push("relations"); return chain; },
         get: function () {
-            query.push("filters=" + filters.join(','));
-            return "?" + query.join('&');
+            query.push("filters=".concat(filters.join(',')));
+            return "?".concat(query.join('&'));
         }
     };
     return chain;

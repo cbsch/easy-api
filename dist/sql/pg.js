@@ -1,5 +1,15 @@
 "use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapRelations = exports.generateSelect = exports.generateUpdate = exports.generateInsert = exports.generateCreateTable = exports.generateCreateColumn = void 0;
 var model_1 = require("../model");
 var debugFactory = require("debug");
 var debug = debugFactory('easy-api:sql:pg');
@@ -7,7 +17,7 @@ var joinTableColumnSplit = '___';
 function generateCreateColumn(def) {
     var sqlString = '    ';
     if (def.type === "reference") {
-        sqlString += def.name + "_id";
+        sqlString += "".concat(def.name, "_id");
     }
     else {
         sqlString += def.name;
@@ -19,10 +29,10 @@ function generateCreateColumn(def) {
                     def.type === "boolean" ? 'BOOLEAN' :
                         def.type === "float" ? 'REAL' :
                             def.type === "uuid" ? 'UUID' :
-                                def.type === "reference" ? "INTEGER REFERENCES " + def.reference + "(id)" : '';
+                                def.type === "reference" ? "INTEGER REFERENCES ".concat(def.reference, "(id)") : '';
     if (type === '')
-        throw "No type for column " + def.name;
-    sqlString += " " + type;
+        throw "No type for column ".concat(def.name);
+    sqlString += " ".concat(type);
     if (def.type === "reference" && def.cascade) {
         sqlString += ' ON UPDATE CASCADE ON DELETE CASCADE';
     }
@@ -36,37 +46,37 @@ function generateCreateColumn(def) {
         sqlString += ' PRIMARY KEY';
     }
     if (def.default) {
-        sqlString += " DEFAULT '" + def.default + "'";
+        sqlString += " DEFAULT '".concat(def.default, "'");
     }
     if (def.extraColumnSql) {
-        sqlString += " " + def.extraColumnSql;
+        sqlString += " ".concat(def.extraColumnSql);
     }
     return sqlString;
 }
 exports.generateCreateColumn = generateCreateColumn;
 function generateCreateTable(def) {
-    var sqlText = "CREATE TABLE " + def.name + " (\n";
+    var sqlText = "CREATE TABLE ".concat(def.name, " (\n");
     var columnStrings = def.columns.map(function (c) { return generateCreateColumn(c); });
     var columnText = columnStrings.join(',\n');
     columnText += '\n';
     sqlText += columnText;
     sqlText += ');\n';
-    sqlText += "ALTER SEQUENCE " + def.name + "_id_seq RESTART WITH 1000;\n";
+    sqlText += "ALTER SEQUENCE ".concat(def.name, "_id_seq RESTART WITH 1000;\n");
     return sqlText;
 }
 exports.generateCreateTable = generateCreateTable;
 function generateInsert(def, data) {
     var validColumns = def.columns.map(function (c) {
         if (c.type === "reference") {
-            return c.name + "_id";
+            return "".concat(c.name, "_id");
         }
         else {
             return c.name;
         }
     }).filter(function (s) { return s !== 'id'; });
     var columns = Object.keys(data).filter(function (v) { return validColumns.indexOf(v) > -1; });
-    var valueColums = columns.map(function (c) { return "$[" + c + "]"; });
-    var sqlText = "INSERT INTO " + def.name + "(\n";
+    var valueColums = columns.map(function (c) { return "$[".concat(c, "]"); });
+    var sqlText = "INSERT INTO ".concat(def.name, "(\n");
     sqlText += '    ' + columns.join(',\n    ') + '\n';
     sqlText += ') VALUES (\n';
     sqlText += '    ' + valueColums.join(',\n    ') + '\n';
@@ -78,7 +88,7 @@ exports.generateInsert = generateInsert;
 function generateUpdate(def, data) {
     var validColumns = def.columns.map(function (c) {
         if (c.type === "reference") {
-            return c.name + "_id";
+            return "".concat(c.name, "_id");
         }
         else {
             return c.name;
@@ -89,9 +99,9 @@ function generateUpdate(def, data) {
     debug('putting data:');
     debug(data);
     columns.forEach(function (c) {
-        setStatements.push(c + " = $[" + c + "]");
+        setStatements.push("".concat(c, " = $[").concat(c, "]"));
     });
-    var sqlText = "UPDATE " + def.name + "\n";
+    var sqlText = "UPDATE ".concat(def.name, "\n");
     sqlText += 'SET\n';
     sqlText += '    ' + setStatements.join(',\n    ') + '\n';
     sqlText += 'WHERE id = $[id]\n';
@@ -103,10 +113,10 @@ exports.generateUpdate = generateUpdate;
 function generateSelect(def, args) {
     var columns;
     if (args && args.columns) {
-        columns = args.columns.map(function (s) { return def.name + "." + s; }).join(', ');
+        columns = args.columns.map(function (s) { return "".concat(def.name, ".").concat(s); }).join(', ');
     }
     else {
-        columns = def.columns.map(function (s) { return def.name + "." + (s.type !== "reference" ? s.name : s.name + '_id'); }).join(', ');
+        columns = def.columns.map(function (s) { return "".concat(def.name, ".").concat(s.type !== "reference" ? s.name : s.name + '_id'); }).join(', ');
     }
     if (args && args.relations) {
         var joinedSelects_1 = [];
@@ -114,8 +124,8 @@ function generateSelect(def, args) {
             debug(refTable);
             var refColumns = model_1.generatedModel[refTable.reference].definition.columns;
             refColumns.map(function (refCol) {
-                var columnName = refCol.type === "reference" ? refCol.name + "_id" : refCol.name;
-                joinedSelects_1.push(refTable._reference_alias + "." + columnName + " AS " + refTable.name + joinTableColumnSplit + columnName);
+                var columnName = refCol.type === "reference" ? "".concat(refCol.name, "_id") : refCol.name;
+                joinedSelects_1.push("".concat(refTable._reference_alias, ".").concat(columnName, " AS ").concat(refTable.name).concat(joinTableColumnSplit).concat(columnName));
             });
         });
         if (joinedSelects_1) {
@@ -123,12 +133,12 @@ function generateSelect(def, args) {
             columns += joinedSelects_1.join(', ');
         }
     }
-    var sqlText = "SELECT " + columns + "\nFROM " + def.name + "\n";
+    var sqlText = "SELECT ".concat(columns, "\nFROM ").concat(def.name, "\n");
     var joinText = '';
     if (args && args.relations) {
         for (var _i = 0, _a = def.columns.filter(function (c) { return c.type === "reference"; }); _i < _a.length; _i++) {
             var c = _a[_i];
-            joinText += "LEFT JOIN " + c.reference + " AS " + c._reference_alias + " ON " + c._reference_alias + ".id = " + def.name + "." + c.name + "_id\n";
+            joinText += "LEFT JOIN ".concat(c.reference, " AS ").concat(c._reference_alias, " ON ").concat(c._reference_alias, ".id = ").concat(def.name, ".").concat(c.name, "_id\n");
         }
     }
     if (joinText) {
@@ -137,22 +147,22 @@ function generateSelect(def, args) {
     var filterText;
     var filterLines = [];
     if (args && args.filters) {
-        filterLines = args.filters.map(function (c) {
+        filterLines = __spreadArray([], args.filters.map(function (c) {
             if (!c.op.match(/[<>=]/g)) {
-                throw "Invalid operator " + c.op;
+                throw "Invalid operator ".concat(c.op);
             }
-            return def.name + "." + c.column + " " + c.op + " $[" + c.column + "]";
-        }).slice();
+            return "".concat(def.name, ".").concat(c.column, " ").concat(c.op, " $[").concat(c.column, "]");
+        }), true);
     }
     if (args && args.in) {
-        filterLines = filterLines.concat([args.in.column + " IN (" + args.in.values.join(', ') + ")"]);
+        filterLines = __spreadArray(__spreadArray([], filterLines, true), ["".concat(args.in.column, " IN (").concat(args.in.values.join(', '), ")")], false);
     }
     if (filterLines.length > 0) {
         filterText = filterLines.join(' AND ');
-        sqlText += "WHERE " + filterText + "\n";
+        sqlText += "WHERE ".concat(filterText, "\n");
     }
     if (args && args.orderby) {
-        sqlText += "ORDER BY " + args.orderby.join(', ') + "\n";
+        sqlText += "ORDER BY ".concat(args.orderby.join(', '), "\n");
     }
     sqlText += ';';
     return sqlText;

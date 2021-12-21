@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -35,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.useRoutes = void 0;
 var express = require("express");
 var debugFactory = require("debug");
 var debug = debugFactory('easy-api:routes');
@@ -60,17 +62,17 @@ function routeFactory(options) {
         var router = express.Router();
         var def = model.definition;
         var middleware = options.middleware;
-        debug("generating routes for " + model.definition.name);
+        debug("generating routes for ".concat(model.definition.name));
         if (model.definition.audit && !options.getUserId) {
-            throw "model " + model.definition.name + " has audit enabled, but no getUserId function is specified in options";
+            throw "model ".concat(model.definition.name, " has audit enabled, but no getUserId function is specified in options");
         }
-        router.get("/" + def.name, middleware.get(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.get("/".concat(def.name), middleware.get(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var split, query, result, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        debug("GET " + def.name);
+                        debug("GET ".concat(def.name));
                         split = req.url.split('?');
                         query = '';
                         if (split.length > 1) {
@@ -82,7 +84,7 @@ function routeFactory(options) {
                         return [2, res.status(200).json({
                                 status: 'ok',
                                 data: result,
-                                message: "returned " + result.length + " " + def.name
+                                message: "returned ".concat(result.length, " ").concat(def.name)
                             })];
                     case 2:
                         err_1 = _a.sent();
@@ -92,13 +94,13 @@ function routeFactory(options) {
                 }
             });
         }); });
-        router.post("/" + def.name, middleware.post(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.post("/".concat(def.name), middleware.post(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var data, userId, result, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        debug("POST " + def.name);
+                        debug("POST ".concat(def.name));
                         data = req.body;
                         if (!model.definition.audit) return [3, 2];
                         return [4, options.getUserId(req)];
@@ -122,13 +124,13 @@ function routeFactory(options) {
                 }
             });
         }); });
-        router.put("/" + def.name, middleware.put(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.put("/".concat(def.name), middleware.put(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var data, userId, result, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        debug("POST " + def.name);
+                        debug("POST ".concat(def.name));
                         data = req.body;
                         if (!model.definition.audit) return [3, 2];
                         return [4, options.getUserId(req)];
@@ -151,13 +153,13 @@ function routeFactory(options) {
                 }
             });
         }); });
-        router.delete("/" + def.name, middleware.delete(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.delete("/".concat(def.name), middleware.delete(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var data, result, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        debug("DELETE " + def.name);
+                        debug("DELETE ".concat(def.name));
                         data = req.body;
                         return [4, model.delete(data.id)];
                     case 1:

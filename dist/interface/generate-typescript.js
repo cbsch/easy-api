@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.modelTypeToTSType = exports.generateInterfaceText = exports.generateCode = void 0;
 var fs_1 = require("fs");
 var codebuilder_1 = require("./codebuilder");
 function writeCodeFile(models, path) {
-    fs_1.writeFileSync(path, generateCode(models));
+    (0, fs_1.writeFileSync)(path, generateCode(models));
 }
 exports.default = writeCodeFile;
 function generateCode(models) {
-    var code = codebuilder_1.default();
+    var code = (0, codebuilder_1.default)();
     models.forEach(function (model) {
         code.addcontainer(generateInterfaceText(model.definition));
     });
@@ -15,21 +16,21 @@ function generateCode(models) {
 }
 exports.generateCode = generateCode;
 function generateInterfaceText(table) {
-    var code = codebuilder_1.default();
-    code.addln("export interface " + table.name + " {").indent();
+    var code = (0, codebuilder_1.default)();
+    code.addln("export interface ".concat(table.name, " {")).indent();
     table.columns.forEach(function (column) {
         if (column.type === 'reference') {
-            code.addln(column.name + "_id?: number");
+            code.addln("".concat(column.name, "_id?: number"));
         }
         else {
-            code.addln(column.name + "?: " + modelTypeToTSType(column.type));
+            code.addln("".concat(column.name, "?: ").concat(modelTypeToTSType(column.type)));
         }
     });
     var references = table.columns.filter(function (c) { return c.type === 'reference'; });
     if (references.length > 0) {
         code.addln("relations?: {").indent();
         references.forEach(function (column) {
-            code.addln(column.name + "?: " + column.reference);
+            code.addln("".concat(column.name, "?: ").concat(column.reference));
         });
         code.unindent().addln('}');
     }

@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -82,7 +83,7 @@ function onMessage(ws, msg) {
                     req = JSON.parse(msg.toString());
                     model = model_1.generatedModel[req.item];
                     if (!model) {
-                        sendError(ws, "item " + req.item + " does not exist");
+                        sendError(ws, "item ".concat(req.item, " does not exist"));
                         return [2];
                     }
                     _a = req.method;
@@ -102,7 +103,7 @@ function onMessage(ws, msg) {
                     return [3, 4];
                 case 3:
                     _b = _g.sent();
-                    sendError(ws, "unable to GET item " + req.item + " with query " + req.query);
+                    sendError(ws, "unable to GET item ".concat(req.item, " with query ").concat(req.query));
                     return [3, 4];
                 case 4: return [3, 18];
                 case 5:
@@ -114,7 +115,7 @@ function onMessage(ws, msg) {
                     return [3, 8];
                 case 7:
                     _c = _g.sent();
-                    sendError(ws, "unable to PUT item " + req.item + " with query " + req.query);
+                    sendError(ws, "unable to PUT item ".concat(req.item, " with query ").concat(req.query));
                     return [3, 8];
                 case 8: return [3, 18];
                 case 9:
@@ -126,7 +127,7 @@ function onMessage(ws, msg) {
                     return [3, 12];
                 case 11:
                     _d = _g.sent();
-                    sendError(ws, "unable to PUT item " + req.item + " with query " + req.query);
+                    sendError(ws, "unable to PUT item ".concat(req.item, " with query ").concat(req.query));
                     return [3, 12];
                 case 12: return [3, 18];
                 case 13:
@@ -138,19 +139,19 @@ function onMessage(ws, msg) {
                     return [3, 16];
                 case 15:
                     _e = _g.sent();
-                    sendError(ws, "unable to PUT item " + req.item + " with query " + req.query);
+                    sendError(ws, "unable to PUT item ".concat(req.item, " with query ").concat(req.query));
                     return [3, 16];
                 case 16: return [3, 18];
                 case 17:
                     {
-                        sendError(ws, "method " + req.method + " is not supported");
+                        sendError(ws, "method ".concat(req.method, " is not supported"));
                         return [2];
                     }
                     _g.label = 18;
                 case 18: return [3, 20];
                 case 19:
                     _f = _g.sent();
-                    sendError(ws, "unable to parse message " + msg);
+                    sendError(ws, "unable to parse message ".concat(msg));
                     return [3, 20];
                 case 20: return [2];
             }

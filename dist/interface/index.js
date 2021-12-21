@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.generatePowershell = void 0;
 var model_1 = require("../model");
 var generate_csharp_1 = require("./generate-csharp");
 var generate_powershell_1 = require("./generate-powershell");
@@ -11,23 +12,23 @@ function generateCode(language, path, namespace) {
     namespace = namespace ? namespace : "GeneratedApi";
     switch (language) {
         case "csharp": {
-            generate_csharp_1.default(models, path, namespace);
+            (0, generate_csharp_1.default)(models, path, namespace);
             break;
         }
         case "powershell": {
-            generate_powershell_1.default(models, path);
+            (0, generate_powershell_1.default)(models, path);
             break;
         }
         case "typescript": {
-            generate_typescript_1.default(models, path);
+            (0, generate_typescript_1.default)(models, path);
             break;
         }
         case "typescript_api": {
-            generate_ts_client_api_1.default(models, path);
+            (0, generate_ts_client_api_1.default)(models, path);
             break;
         }
         case "plantuml": {
-            generate_plantuml_1.default(models, path);
+            (0, generate_plantuml_1.default)(models, path);
             break;
         }
     }
@@ -35,7 +36,7 @@ function generateCode(language, path, namespace) {
 exports.default = generateCode;
 function generatePowershell(path, requestFnName, cmdletPrefix) {
     var models = Object.keys(model_1.generatedModel).map(function (key) { return model_1.generatedModel[key]; });
-    generate_powershell_1.default(models, path, requestFnName, cmdletPrefix);
+    (0, generate_powershell_1.default)(models, path, requestFnName, cmdletPrefix);
 }
 exports.generatePowershell = generatePowershell;
 //# sourceMappingURL=index.js.map

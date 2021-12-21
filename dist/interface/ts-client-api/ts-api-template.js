@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -34,12 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.requestFactory = void 0;
 var axios_1 = require("axios");
 var query_1 = require("./query");
-exports.requestFactory = function (options) {
-    return function (url, method, data) { return __awaiter(_this, void 0, void 0, function () {
+var requestFactory = function (options) {
+    return function (url, method, data) { return __awaiter(void 0, void 0, void 0, function () {
         var headers, _i, _a, key, res, err_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
@@ -81,9 +82,10 @@ exports.requestFactory = function (options) {
         });
     }); };
 };
+exports.requestFactory = requestFactory;
 var modelList = require('./models.json');
 function generateApi(modelName, options) {
-    var request = exports.requestFactory(options);
+    var request = (0, exports.requestFactory)(options);
     var table = modelList.filter(function (t) { return t.name === modelName; })[0];
     return {
         get: getFactory(modelName, request),
@@ -91,7 +93,7 @@ function generateApi(modelName, options) {
         update: updateFactory(modelName, request),
         insert: insertFactory(modelName, request),
         remove: removeFactory(modelName, request),
-        query: query_1.queryBuilderFactory(table, function (query) { return getFactory(modelName, request)(query); }),
+        query: (0, query_1.queryBuilderFactory)(table, function (query) { return getFactory(modelName, request)(query); }),
     };
 }
 exports.default = generateApi;
@@ -143,7 +145,7 @@ function getFactory(modelName, request) {
                         return [3, 3];
                     case 2:
                         err_3 = _a.sent();
-                        console.log("GET " + path + " : " + err_3.status);
+                        console.log("GET ".concat(path, " : ").concat(err_3.status));
                         resolve([]);
                         return [3, 3];
                     case 3: return [2];

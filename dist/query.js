@@ -1,15 +1,25 @@
 "use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.queryBuilderFactory = void 0;
 function filter(chain, filters, columnName) {
     return {
-        eq: function (value) { filters.push(columnName + "=" + value); return chain; },
-        in: function (value) { filters.push(columnName + "[" + value.join(',') + "]"); return chain; }
+        eq: function (value) { filters.push("".concat(columnName, "=").concat(value)); return chain; },
+        in: function (value) { filters.push("".concat(columnName, "[").concat(value.join(','), "]")); return chain; }
     };
 }
 function orderby(chain, sorts, column) {
     return {
-        asc: function () { sorts.push(column + " asc"); return chain; },
-        desc: function () { sorts.push(column + " desc"); return chain; }
+        asc: function () { sorts.push("".concat(column, " asc")); return chain; },
+        desc: function () { sorts.push("".concat(column, " desc")); return chain; }
     };
 }
 function queryBuilderFactory(table, get) {
@@ -23,12 +33,12 @@ function queryBuilderFactory(table, get) {
             relations: function () { query.push("relations"); return chain; },
             toString: function () {
                 if (sorts.length > 0) {
-                    query = ["orderby=" + sorts.join(';')].concat(query);
+                    query = __spreadArray(["orderby=".concat(sorts.join(';'))], query, true);
                 }
                 if (filters.length > 0) {
-                    query = ["filters=" + filters.join(';')].concat(query);
+                    query = __spreadArray(["filters=".concat(filters.join(';'))], query, true);
                 }
-                return "?" + query.join('&');
+                return "?".concat(query.join('&'));
             }
         };
         if (get) {
@@ -49,7 +59,7 @@ function queryBuilderFactory(table, get) {
                     break;
                 }
                 case "reference": {
-                    chain.filter[column.name + "_id"] = filter(chain, filters, column.name + "_id");
+                    chain.filter["".concat(column.name, "_id")] = filter(chain, filters, "".concat(column.name, "_id"));
                     break;
                 }
                 case "boolean": {

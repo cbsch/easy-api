@@ -6,7 +6,7 @@ declare let generatedModel: {
     [key: string]: any;
 };
 export { generatedModel };
-declare const emitter: events.EventEmitter;
+declare const emitter: events;
 export { emitter };
 export declare function queryToObject(string?: string): SelectArgs;
 export declare function modelWrapper(db: Database<{}>): <T>(def: Table<T>) => GeneratedModel<T>;
