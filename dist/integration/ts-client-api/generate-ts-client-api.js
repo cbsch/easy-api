@@ -11,9 +11,9 @@ function writeClientApi(models, path) {
     var apiPath = (0, path_1.join)(path, 'index.ts');
     (0, fs_1.writeFileSync)(apiPath, generateApiCode(models).get());
     var templatePath = (0, path_1.join)(path, 'generated-api-lib.ts');
-    var template = (0, fs_1.readFileSync)((0, path_1.join)(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'));
+    var template = (0, fs_1.readFileSync)((0, path_1.join)(__dirname, '../../../src/integration/ts-client-api/ts-api-template.ts'));
     (0, fs_1.writeFileSync)(templatePath, template);
-    (0, fs_1.writeFileSync)((0, path_1.join)(path, 'generated-ws-api-lib.ts'), (0, fs_1.readFileSync)((0, path_1.join)(__dirname, '../../../src/interface/ts-client-api/ts-ws-api-template.ts')));
+    (0, fs_1.writeFileSync)((0, path_1.join)(path, 'generated-ws-api-lib.ts'), (0, fs_1.readFileSync)((0, path_1.join)(__dirname, '../../../src/integration/ts-client-api/ts-ws-api-template.ts')));
     var modelJsonPath = (0, path_1.join)(path, 'models.json');
     var modelJson = generateModel(models);
     (0, fs_1.writeFileSync)(modelJsonPath, modelJson);

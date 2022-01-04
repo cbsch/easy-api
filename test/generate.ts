@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { generatedModel as model } from '../src/model';
-import writeClientApi from '../src/interface/ts-client-api/generate-ts-client-api';
+import writeClientApi from '../src/integration/ts-client-api/generate-ts-client-api';
 import { auditTable, loginTable, complexTable } from './data.test';
 import * as pgpLib from 'pg-promise'
 import modelWrapper from '../src';

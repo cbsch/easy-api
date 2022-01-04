@@ -13,12 +13,12 @@ export default function writeClientApi(models: GeneratedModel<any>[], path: stri
     writeFileSync(apiPath, generateApiCode(models).get())
 
     const templatePath = join(path, 'generated-api-lib.ts')
-    const template = readFileSync(join(__dirname, '../../../src/interface/ts-client-api/ts-api-template.ts'))
+    const template = readFileSync(join(__dirname, '../../../src/integration/ts-client-api/ts-api-template.ts'))
     writeFileSync(templatePath, template)
 
     writeFileSync(
         join(path, 'generated-ws-api-lib.ts'),
-        readFileSync(join(__dirname, '../../../src/interface/ts-client-api/ts-ws-api-template.ts'))
+        readFileSync(join(__dirname, '../../../src/integration/ts-client-api/ts-ws-api-template.ts'))
     )
 
     const modelJsonPath = join(path, 'models.json')

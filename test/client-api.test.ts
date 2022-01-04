@@ -1,6 +1,6 @@
 import { generatedModel as model } from '../src/model';
 import * as chai from 'chai'
-import { generateApiCode } from '../src/interface/ts-client-api/generate-ts-client-api'
+import { generateApiCode } from '../src/integration/ts-client-api/generate-ts-client-api'
 chai.should()
 
 describe('generateApiCode', () => {
