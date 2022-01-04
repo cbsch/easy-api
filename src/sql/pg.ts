@@ -14,7 +14,7 @@ export function generateCreateColumn(def: Column) {
         sqlString += def.name
     }
     //var sqlString = `    ${def.name}`
-    const type = 
+    const type =
         def.type === "number" ? 'INTEGER' :
         def.type === "string" ? 'TEXT' :
         def.type === "date" ? 'TIMESTAMP WITH TIME ZONE' :
@@ -50,13 +50,13 @@ export function generateCreateTable<T>(def: Table<T>): string {
     columnText += '\n'
     sqlText += columnText
     sqlText += ');\n'
-    sqlText += `ALTER SEQUENCE ${def.name}_id_seq RESTART WITH 1000;\n`
+    sqlText += `ALTER SEQUENCE ${def.name}_id_seq START 1000;\n`
 
     return sqlText
 }
 
 export function generateInsert<T>(def: Table<T>, data: T): string {
-    const validColumns = def.columns.map(c => { 
+    const validColumns = def.columns.map(c => {
         if (c.type === "reference") { return `${c.name}_id`} else { return c.name }
     }).filter(s => { return s !== 'id'})
 
@@ -77,7 +77,7 @@ export function generateInsert<T>(def: Table<T>, data: T): string {
 
 
 export function generateUpdate<T>(def: Table<T>, data: T): string {
-    const validColumns = def.columns.map(c => { 
+    const validColumns = def.columns.map(c => {
         if (c.type === "reference") { return `${c.name}_id`} else { return c.name }
     }).filter(s => { return s !== 'id'})
 
@@ -146,7 +146,7 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
 
     if (joinText) {
         sqlText += joinText
-    } 
+    }
 
     /*
         Creating WHERE .. AND ..
@@ -163,7 +163,7 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
     }
 
     if (args && args.in) {
-        filterLines = [...filterLines, 
+        filterLines = [...filterLines,
             `${args.in.column} IN (${args.in.values.join(', ')})`
         ]
     }
@@ -188,7 +188,7 @@ export function generateSelect<T>(def: Table<T>, args?: SelectArgs): string {
 }
 
 export function mapRelations(result: any[]): void {
-    result.map((r: any) => { 
+    result.map((r: any) => {
         r['relations'] = {}
         Object.keys(r).map((key: string) => {
             if (key.match(joinTableColumnSplit)) {

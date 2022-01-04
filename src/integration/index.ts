@@ -1,7 +1,7 @@
 export type Languages = "csharp" | "powershell" | "typescript" | "typescript_api" | "plantuml"
 
 import { generatedModel } from '../model'
-import { GeneratedModel } from '../';
+import { GeneratedModel } from '..';
 import generate_csharp from './generate-csharp'
 import generate_powershell from './generate-powershell'
 import generate_typescript from './generate-typescript'
