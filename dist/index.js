@@ -9,8 +9,8 @@ exports.routeFactory = routes_1.default;
 Object.defineProperty(exports, "useRoutes", { enumerable: true, get: function () { return routes_1.useRoutes; } });
 var socket_1 = require("./socket");
 exports.createSocketServer = socket_1.default;
-var interface_1 = require("./interface");
-exports.generateCode = interface_1.default;
-Object.defineProperty(exports, "generatePowershell", { enumerable: true, get: function () { return interface_1.generatePowershell; } });
+var integration_1 = require("./integration");
+exports.generateCode = integration_1.default;
+Object.defineProperty(exports, "generatePowershell", { enumerable: true, get: function () { return integration_1.generatePowershell; } });
 exports.default = model_1.modelWrapper;
 //# sourceMappingURL=index.js.map
