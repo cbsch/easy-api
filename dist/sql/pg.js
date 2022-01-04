@@ -61,7 +61,7 @@ function generateCreateTable(def) {
     columnText += '\n';
     sqlText += columnText;
     sqlText += ');\n';
-    sqlText += "ALTER SEQUENCE ".concat(def.name, "_id_seq START 1000;\n");
+    sqlText += "ALTER SEQUENCE ".concat(def.name, "_id_seq RESTART WITH 1000;\n");
     return sqlText;
 }
 exports.generateCreateTable = generateCreateTable;

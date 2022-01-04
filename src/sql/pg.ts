@@ -50,7 +50,7 @@ export function generateCreateTable<T>(def: Table<T>): string {
     columnText += '\n'
     sqlText += columnText
     sqlText += ');\n'
-    sqlText += `ALTER SEQUENCE ${def.name}_id_seq START 1000;\n`
+    sqlText += `ALTER SEQUENCE ${def.name}_id_seq RESTART WITH 1000;\n`
 
     return sqlText
 }
