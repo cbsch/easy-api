@@ -84,7 +84,9 @@ createSocketServer(server)
 export const init = () => {
     return new Promise<void>(async (resolve, reject) => {
         try {
-            await startDb()
+            try {
+                await startDb()
+            } catch {}
 
             for (var i = 0, keys = Object.keys(model); i < keys.length; i++) {
                 await ((model as any)[keys[i]].create())
@@ -101,7 +103,7 @@ export const init = () => {
             server.listen(port)
         } catch (ex) {
             console.log(ex)
-            try { await stopDb() } catch { }
+            // try { await stopDb() } catch { }
             reject(ex)
         }
     })
@@ -114,6 +116,7 @@ export const stop = async () => {
 }
 
 before(function () {
+    // this.enableTimeouts(false)
     return init()
 })
 

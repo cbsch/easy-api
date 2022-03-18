@@ -102,8 +102,7 @@ export async function startDb() {
             }
         }
     } catch (err) {
-        console.log(`failed to start container: ${err}`)
-        process.exit(1)
+        throw err
     }
 }
 

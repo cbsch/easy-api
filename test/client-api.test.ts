@@ -49,13 +49,9 @@ import { api, range } from './helpers'
 describe('client api (login)', () => {
     const name = 'client-api-login-should-post'
     it('should post', async () => {
-        try {
-            const data = await api.login.insert({ name: name })
-            data.should.have.property('id').eql(1000)
-            data.should.have.property('name').eql(name)
-        } catch (err) {
-            // console.log(err)
-        }
+        const data = await api.login.insert({ name: name })
+        data.should.have.property('id').eql(1000)
+        data.should.have.property('name').eql(name)
     })
     it('should work', async () => {
         const data = await api.login.getById(1000)
