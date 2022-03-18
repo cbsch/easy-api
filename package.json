@@ -8,9 +8,10 @@
     "build": "tsc",
     "oldtest": "mocha --reporter spec ",
     "generate": "ts-node test/generate.ts",
-    "test": "ts-node test/generate.ts && mocha test/**/*.test.ts --require ts-node/register",
+    "test": "mocha test/**/*.test.ts --require ts-node/register",
     "prepare": "npm run build",
-    "demo": "ts-node test/demo.ts"
+    "demo": "ts-node test/demo.ts",
+    "dev": "ts-node tools/dev.ts"
   },
   "repository": {
     "type": "git",
