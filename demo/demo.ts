@@ -4,6 +4,7 @@ import modelWrapper, { useRoutes, createSocketServer, Table } from '../src';
 import { generatedModel as model } from '../src/model';
 import { AddressInfo } from 'net';
 import * as http from 'http'
+import { IConnectionParameters } from 'pg-promise/typescript/pg-subset';
 
 
 export interface Login {
@@ -62,10 +63,16 @@ export const complexTable: Table<any> = {
 
 
 const setupDb = async () => {
-    const config = require('../config').config
+    // const config = require('../config').config
+    const config: IConnectionParameters = {
+        host: 'localhost',
+        user: 'postgres',
+        password: 'postgres'
+    }
 
     const pgp = pgpLib();
     const db = pgp(config);
+
     const modelFactory = modelWrapper(db as any)
 
     const login = modelFactory(loginTable)

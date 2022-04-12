@@ -2,9 +2,10 @@ import { IDatabase as Database } from 'pg-promise'
 import * as events from 'events'
 import * as debugFactory from 'debug'
 
-import * as querystring from 'querystring'
 import { SelectArgs, Table, GeneratedModel } from './interfaces';
-import { generateCreateTable, generateUpdate, generateInsert, generateSelect, mapRelations } from './sql/pg';
+import generateUpdate from './sql/postgres/generateUpdate';
+import generateSelect from './sql/postgres/generateSelect';
+import mapRelations from './sql/postgres/mapRelations';
 
 const debug = debugFactory('easy-api:model:generator')
 
@@ -12,62 +13,22 @@ let generatedModel: {[key:string]: any} = {}
 
 export { generatedModel }
 
+export function getModel<T>(name: string): GeneratedModel<T> {
+    return generatedModel[name]
+}
+
 const emitter = new events.EventEmitter()
 emitter.setMaxListeners(500)
 
 export { emitter }
 
-export function queryToObject(string?: string): SelectArgs {
-
-    if (!string) { return undefined }
-
-    const query: any = querystring.parse(string)
-
-    let args: SelectArgs = {}
-    if (query && query['filters']) {
-        args.filters = []
-        let filterList = query['filters'].split(';')
-        for (const filter of filterList) {
-            let op = filter.match('=') ? '=' : 
-                filter.match('>') ? '>' : 
-                filter.match('<') ? '<' : 
-                filter.match(/\[/) ? '[' : undefined
-            if (!op) { continue }
-
-            if (op === '[') {
-                let values = filter.split(op)[1].split(']')[0].split(',')
-                args.in = {
-                    column: filter.split(op)[0],
-                    values: values
-                }
-            } else {
-                let column = filter.split(op)[0]
-                let value = filter.split(op)[1]
-
-                args.filters.push({
-                    column: column,
-                    op: op,
-                    value: value
-                })
-
-            }
-        }
-    }
-
-    if (query && undefined !== query['relations']) {
-        args.relations = true
-    }
-    if (query && undefined !== query['orderby']) {
-        args.orderby = query['orderby'].split(';')
-    }
-
-    return args
-}
+import { generateCreateTable } from './sql/postgres/generateCreateTable';
+import generateInsert from './sql/postgres/generateInsert';
 
 
 export function modelWrapper(db: Database<{}>) {
     if (!db) {
-        throw "db object not initialized"
+        throw new Error("db object not initialized")
     }
 
     return function<T>(def: Table<T>): GeneratedModel<T> {
@@ -77,14 +38,13 @@ export function modelWrapper(db: Database<{}>) {
 
 export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedModel<T> {
     if (!db) {
-        throw "db object not initialized"
+        throw new Error("db object not initialized")
     }
     if (!def) {
-        throw "definition object not initialized"
+        throw new Error("definition object not initialized")
     }
 
     if (generatedModel[def.name]) {
-        //console.log(`WARNING: model ${def.name} already added. Returning already generated model`)
         return generatedModel[def.name]
     }
 
@@ -209,13 +169,22 @@ function createFactory<T>(db: Database<{}>, def: Table<T>): () => Promise<void> 
     }
 }
 
-function findFactory<T>(db: Database<{}>, def: Table<T>): (query?: string) => Promise<T[]> {
-    return (query?: string) => {
+const getQueryObject = (query?: string | SelectArgs) => {
+    if (typeof (query) === 'string') {
+        return queryToObject(query)
+    } else {
+        return query
+    }
+
+}
+
+function findFactory<T>(db: Database<{}>, def: Table<T>): (query?: string | SelectArgs) => Promise<T[]> {
+    return (query?: string | SelectArgs) => {
         return new Promise<T[]>(async (resolve, reject) => {
             try {
                 debug(`find called on ${def.name}`)
 
-                const args = queryToObject(query)
+                const args = getQueryObject(query)
 
                 const sqlText = generateSelect(def, args)
                 var obj: any = {}
@@ -237,3 +206,49 @@ function findFactory<T>(db: Database<{}>, def: Table<T>): (query?: string) => Pr
     }
 }
 
+export function queryToObject(string?: string): SelectArgs {
+
+    if (!string) { return undefined }
+    const query = new URLSearchParams(string)
+
+    let args: SelectArgs = {}
+    if (query.has('filters')) {
+        args.filters = []
+        let filterList = query.get('filters').split(';')
+
+        for (const filter of filterList) {
+            let op = filter.match('=') ? '=' :
+                filter.match('>') ? '>' :
+                filter.match('<') ? '<' :
+                filter.match(/\[/) ? '[' : undefined
+            if (!op) { continue }
+
+            if (op === '[') {
+                let values = filter.split(op)[1].split(']')[0].split(',')
+                args.in = {
+                    column: filter.split(op)[0],
+                    values: values
+                }
+            } else {
+                let column = filter.split(op)[0]
+                let value = filter.split(op)[1]
+
+                args.filters.push({
+                    column: column,
+                    op: op,
+                    value: value
+                })
+
+            }
+        }
+    }
+
+    if (query.has('relations')) {
+        args.relations = true
+    }
+    if (query.has('orderby')) {
+        args.orderby = query.get('orderby').split(';')
+    }
+
+    return args
+}

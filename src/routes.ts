@@ -45,7 +45,7 @@ export default function routeFactory(options?: RouteFactoryOptions) {
 
         debug(`generating routes for ${model.definition.name}`)
         if (model.definition.audit && !options.getUserId) {
-            throw `model ${model.definition.name} has audit enabled, but no getUserId function is specified in options`
+            throw new Error(`model ${model.definition.name} has audit enabled, but no getUserId function is specified in options`)
         }
 
         router.get(`/${def.name}`, middleware.get(def.name), async (req, res) => {
