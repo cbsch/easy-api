@@ -64,7 +64,7 @@ function routeFactory(options) {
         var middleware = options.middleware;
         debug("generating routes for ".concat(model.definition.name));
         if (model.definition.audit && !options.getUserId) {
-            throw "model ".concat(model.definition.name, " has audit enabled, but no getUserId function is specified in options");
+            throw new Error("model ".concat(model.definition.name, " has audit enabled, but no getUserId function is specified in options"));
         }
         router.get("/".concat(def.name), middleware.get(def.name), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var split, query, result, err_1;

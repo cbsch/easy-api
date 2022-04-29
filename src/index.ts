@@ -3,9 +3,18 @@ import model, { emitter, modelWrapper } from './model'
 import routeFactory, { useRoutes } from './routes'
 import createSocketServer from './socket'
 
-import generateCode, { generatePowershell } from './integration'
+import generateCode, { generatePowershell, generatePowershellv2 } from './integration'
 
 export default modelWrapper
-export { model, emitter, routeFactory, useRoutes, generateCode, generatePowershell, createSocketServer }
+export {
+    createSocketServer,
+    emitter,
+    model,
+    routeFactory,
+    useRoutes,
+    generateCode,
+    generatePowershell,
+    generatePowershellv2
+}
 // interfaces
 export { Table, GeneratedModel, SelectArgs }

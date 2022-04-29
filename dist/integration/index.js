@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generatePowershell = void 0;
+exports.generatePowershellv2 = exports.generatePowershell = void 0;
 var model_1 = require("../model");
 var generate_csharp_1 = require("./generate-csharp");
 var generate_powershell_1 = require("./generate-powershell");
 var generate_typescript_1 = require("./generate-typescript");
 var generate_plantuml_1 = require("./generate-plantuml");
+var generate_powershell_v2_1 = require("./generate-powershell-v2");
 var generate_ts_client_api_1 = require("./ts-client-api/generate-ts-client-api");
 function generateCode(language, path, namespace) {
     var models = Object.keys(model_1.generatedModel).map(function (key) { return model_1.generatedModel[key]; });
@@ -39,4 +40,9 @@ function generatePowershell(path, requestFnName, cmdletPrefix) {
     (0, generate_powershell_1.default)(models, path, requestFnName, cmdletPrefix);
 }
 exports.generatePowershell = generatePowershell;
+function generatePowershellv2(path, requestFnName, cmdletPrefix) {
+    var models = Object.keys(model_1.generatedModel).map(function (key) { return model_1.generatedModel[key]; });
+    (0, generate_powershell_v2_1.default)(models, path, requestFnName, cmdletPrefix);
+}
+exports.generatePowershellv2 = generatePowershellv2;
 //# sourceMappingURL=index.js.map

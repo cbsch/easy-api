@@ -56,65 +56,27 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.modelWrapper = exports.queryToObject = exports.emitter = exports.generatedModel = void 0;
+exports.queryToObject = exports.modelWrapper = exports.emitter = exports.getModel = exports.generatedModel = void 0;
 var events = require("events");
 var debugFactory = require("debug");
-var querystring = require("querystring");
-var pg_1 = require("./sql/pg");
+var generateUpdate_1 = require("./sql/postgres/generateUpdate");
+var generateSelect_1 = require("./sql/postgres/generateSelect");
+var mapRelations_1 = require("./sql/postgres/mapRelations");
 var debug = debugFactory('easy-api:model:generator');
 var generatedModel = {};
 exports.generatedModel = generatedModel;
+function getModel(name) {
+    return generatedModel[name];
+}
+exports.getModel = getModel;
 var emitter = new events.EventEmitter();
 exports.emitter = emitter;
 emitter.setMaxListeners(500);
-function queryToObject(string) {
-    if (!string) {
-        return undefined;
-    }
-    var query = querystring.parse(string);
-    var args = {};
-    if (query && query['filters']) {
-        args.filters = [];
-        var filterList = query['filters'].split(';');
-        for (var _i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
-            var filter = filterList_1[_i];
-            var op = filter.match('=') ? '=' :
-                filter.match('>') ? '>' :
-                    filter.match('<') ? '<' :
-                        filter.match(/\[/) ? '[' : undefined;
-            if (!op) {
-                continue;
-            }
-            if (op === '[') {
-                var values = filter.split(op)[1].split(']')[0].split(',');
-                args.in = {
-                    column: filter.split(op)[0],
-                    values: values
-                };
-            }
-            else {
-                var column = filter.split(op)[0];
-                var value = filter.split(op)[1];
-                args.filters.push({
-                    column: column,
-                    op: op,
-                    value: value
-                });
-            }
-        }
-    }
-    if (query && undefined !== query['relations']) {
-        args.relations = true;
-    }
-    if (query && undefined !== query['orderby']) {
-        args.orderby = query['orderby'].split(';');
-    }
-    return args;
-}
-exports.queryToObject = queryToObject;
+var generateCreateTable_1 = require("./sql/postgres/generateCreateTable");
+var generateInsert_1 = require("./sql/postgres/generateInsert");
 function modelWrapper(db) {
     if (!db) {
-        throw "db object not initialized";
+        throw new Error("db object not initialized");
     }
     return function (def) {
         return model(db, def);
@@ -123,10 +85,10 @@ function modelWrapper(db) {
 exports.modelWrapper = modelWrapper;
 function model(db, def) {
     if (!db) {
-        throw "db object not initialized";
+        throw new Error("db object not initialized");
     }
     if (!def) {
-        throw "definition object not initialized";
+        throw new Error("definition object not initialized");
     }
     if (generatedModel[def.name]) {
         return generatedModel[def.name];
@@ -153,7 +115,7 @@ function model(db, def) {
     });
     var model = {
         definition: def,
-        createText: (0, pg_1.generateCreateTable)(def),
+        createText: (0, generateCreateTable_1.generateCreateTable)(def),
         create: createFactory(db, def),
         drop: dropFactory(db, def),
         insert: insertFactory(db, def),
@@ -192,7 +154,7 @@ function deleteFactory(db, def) {
 function updateFactory(db, def) {
     var _this = this;
     return function (data) {
-        var sqlText = (0, pg_1.generateUpdate)(def, data);
+        var sqlText = (0, generateUpdate_1.default)(def, data);
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var result, err_2;
             return __generator(this, function (_a) {
@@ -224,7 +186,7 @@ function insertFactory(db, def) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        sqlText = (0, pg_1.generateInsert)(def, data);
+                        sqlText = (0, generateInsert_1.default)(def, data);
                         return [4, db.oneOrNone(sqlText, data)];
                     case 1:
                         result = _a.sent();
@@ -268,7 +230,7 @@ function dropFactory(db, def) {
 }
 function createFactory(db, def) {
     var _this = this;
-    var sqlText = (0, pg_1.generateCreateTable)(def);
+    var sqlText = (0, generateCreateTable_1.generateCreateTable)(def);
     return function () {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var err_5;
@@ -292,6 +254,14 @@ function createFactory(db, def) {
         }); });
     };
 }
+var getQueryObject = function (query) {
+    if (typeof (query) === 'string') {
+        return queryToObject(query);
+    }
+    else {
+        return query;
+    }
+};
 function findFactory(db, def) {
     var _this = this;
     return function (query) {
@@ -302,8 +272,8 @@ function findFactory(db, def) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         debug("find called on ".concat(def.name));
-                        args = queryToObject(query);
-                        sqlText = (0, pg_1.generateSelect)(def, args);
+                        args = getQueryObject(query);
+                        sqlText = (0, generateSelect_1.default)(def, args);
                         obj = {};
                         if (args && args.filters) {
                             args.filters.forEach(function (a) { obj[a.column] = a.value; });
@@ -313,7 +283,7 @@ function findFactory(db, def) {
                         result = _a.sent();
                         debug("found ".concat(result.length, " ").concat(def.name));
                         if (args && args.relations) {
-                            (0, pg_1.mapRelations)(result);
+                            (0, mapRelations_1.default)(result);
                         }
                         resolve(result);
                         return [3, 3];
@@ -327,4 +297,49 @@ function findFactory(db, def) {
         }); });
     };
 }
+function queryToObject(string) {
+    if (!string) {
+        return undefined;
+    }
+    var query = new URLSearchParams(string);
+    var args = {};
+    if (query.has('filters')) {
+        args.filters = [];
+        var filterList = query.get('filters').split(';');
+        for (var _i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
+            var filter = filterList_1[_i];
+            var op = filter.match('=') ? '=' :
+                filter.match('>') ? '>' :
+                    filter.match('<') ? '<' :
+                        filter.match(/\[/) ? '[' : undefined;
+            if (!op) {
+                continue;
+            }
+            if (op === '[') {
+                var values = filter.split(op)[1].split(']')[0].split(',');
+                args.in = {
+                    column: filter.split(op)[0],
+                    values: values
+                };
+            }
+            else {
+                var column = filter.split(op)[0];
+                var value = filter.split(op)[1];
+                args.filters.push({
+                    column: column,
+                    op: op,
+                    value: value
+                });
+            }
+        }
+    }
+    if (query.has('relations')) {
+        args.relations = true;
+    }
+    if (query.has('orderby')) {
+        args.orderby = query.get('orderby').split(';');
+    }
+    return args;
+}
+exports.queryToObject = queryToObject;
 //# sourceMappingURL=model.js.map

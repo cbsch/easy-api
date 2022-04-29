@@ -32,7 +32,7 @@ export interface GeneratedModel<T> {
     drop: () => void;
     insert: (data: T) => Promise<T>;
     delete: (id: number) => Promise<T>;
-    find: (query?: string) => Promise<T[]>;
+    find: (query?: string | SelectArgs) => Promise<T[]>;
     update: (data: T) => Promise<T>;
 }
 export interface SelectArgs {

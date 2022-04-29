@@ -6,6 +6,7 @@ import generate_csharp from './generate-csharp'
 import generate_powershell from './generate-powershell'
 import generate_typescript from './generate-typescript'
 import generate_plantuml from './generate-plantuml'
+import _generatePowershellv2 from './generate-powershell-v2'
 import writeClientApi from './ts-client-api/generate-ts-client-api';
 
 export default function generateCode(language: Languages, path: string, namespace?: string) {
@@ -41,4 +42,11 @@ export function generatePowershell(path: string, requestFnName: string, cmdletPr
     const models = Object.keys(generatedModel).map(key => (generatedModel as { [index: string]: GeneratedModel<any> })[key])
 
     generate_powershell(models, path, requestFnName, cmdletPrefix)
+}
+
+
+export function generatePowershellv2(path: string, requestFnName: string, cmdletPrefix: string) {
+    const models = Object.keys(generatedModel).map(key => (generatedModel as { [index: string]: GeneratedModel<any> })[key])
+
+    _generatePowershellv2(models, path, requestFnName, cmdletPrefix)
 }
