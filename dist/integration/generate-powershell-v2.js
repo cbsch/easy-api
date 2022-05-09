@@ -57,7 +57,7 @@ function generateNewFunction(name, prettyName, requestFnName, cmdletPrefix) {
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
     code.addln(")");
-    code.addln('if (!$PSCmdlet.ShouldProcess($Object)) { return }');
+    code.addln('if (!$PSCmdlet.ShouldProcess("$Object")) { return }');
     code.addln("return ".concat(requestFnName, " -Path \"/api/").concat(name, "\" -Method POST -Body $Object")).unindent();
     code.addln("}");
     code.addln('');
@@ -70,7 +70,7 @@ function generateSetFunction(name, prettyName, requestFnName, cmdletPrefix) {
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
     code.addln(")");
-    code.addln('if (!$PSCmdlet.ShouldProcess($Object)) { return }');
+    code.addln('if (!$PSCmdlet.ShouldProcess("$Object")) { return }');
     code.addln("return ".concat(requestFnName, " -Path \"/api/").concat(name, "\" -Method PUT -Body $Object")).unindent();
     code.addln("}");
     code.addln('');
@@ -83,7 +83,7 @@ function generateRemoveFunction(name, prettyName, requestFnName, cmdletPrefix) {
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
     code.addln(")");
-    code.addln('if (!$PSCmdlet.ShouldProcess($Object)) { return }');
+    code.addln('if (!$PSCmdlet.ShouldProcess("$Object")) { return }');
     code.addln("return ".concat(requestFnName, " -Path \"/api/").concat(name, "\" -Method DELETE -Body $Object")).unindent();
     code.addln("}");
     code.addln('');
