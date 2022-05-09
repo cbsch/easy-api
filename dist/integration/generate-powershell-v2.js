@@ -38,7 +38,6 @@ exports.default = generateCode;
 function generateGetFunction(name, prettyName, requestFnName, cmdletPrefix) {
     var code = (0, codebuilder_1.default)();
     code.addln("Function Get-".concat(cmdletPrefix).concat(prettyName, " {")).indent();
-    code.addln("[OutputType([".concat(name, "])]"));
     code.addln("Param(").indent();
     code.addln("[Parameter()][int]$Id,");
     code.addln("[Parameter()][string]$Query").unindent();
@@ -54,7 +53,6 @@ function generateGetFunction(name, prettyName, requestFnName, cmdletPrefix) {
 function generateNewFunction(name, prettyName, requestFnName, cmdletPrefix) {
     var code = (0, codebuilder_1.default)();
     code.addln("Function New-".concat(cmdletPrefix).concat(prettyName, " {")).indent();
-    code.addln("[OutputType([".concat(name, "])]"));
     code.addln('[CmdletBinding(SupportsShouldProcess)]');
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
@@ -68,7 +66,6 @@ function generateNewFunction(name, prettyName, requestFnName, cmdletPrefix) {
 function generateSetFunction(name, prettyName, requestFnName, cmdletPrefix) {
     var code = (0, codebuilder_1.default)();
     code.addln("Function Set-".concat(cmdletPrefix).concat(prettyName, " {")).indent();
-    code.addln("[OutputType([".concat(name, "])]"));
     code.addln('[CmdletBinding(SupportsShouldProcess)]');
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
@@ -82,7 +79,6 @@ function generateSetFunction(name, prettyName, requestFnName, cmdletPrefix) {
 function generateRemoveFunction(name, prettyName, requestFnName, cmdletPrefix) {
     var code = (0, codebuilder_1.default)();
     code.addln("Function Remove-".concat(cmdletPrefix).concat(prettyName, " {")).indent();
-    code.addln("[OutputType([".concat(name, "])]"));
     code.addln('[CmdletBinding(SupportsShouldProcess)]');
     code.addln("Param(").indent();
     code.addln("[Parameter()][PSObject]$Object").unindent();
