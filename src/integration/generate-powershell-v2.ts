@@ -64,7 +64,6 @@ function generateGetFunction(
     const code = getCodeBuilder()
 
     code.addln(`Function Get-${cmdletPrefix}${prettyName} {`).indent()
-    code.addln(`[OutputType([${name}])]`)
     code.addln(`Param(`).indent()
     code.addln(`[Parameter()][int]$Id,`)
     code.addln(`[Parameter()][string]$Query`).unindent()
@@ -88,7 +87,6 @@ function generateNewFunction(
     const code = getCodeBuilder()
 
     code.addln(`Function New-${cmdletPrefix}${prettyName} {`).indent()
-    code.addln(`[OutputType([${name}])]`)
     code.addln('[CmdletBinding(SupportsShouldProcess)]')
     code.addln(`Param(`).indent()
     code.addln(`[Parameter()][PSObject]$Object`).unindent()
@@ -110,7 +108,6 @@ function generateSetFunction(
     const code = getCodeBuilder()
 
     code.addln(`Function Set-${cmdletPrefix}${prettyName} {`).indent()
-    code.addln(`[OutputType([${name}])]`)
     code.addln('[CmdletBinding(SupportsShouldProcess)]')
     code.addln(`Param(`).indent()
     code.addln(`[Parameter()][PSObject]$Object`).unindent()
@@ -132,7 +129,6 @@ function generateRemoveFunction(
     const code = getCodeBuilder()
 
     code.addln(`Function Remove-${cmdletPrefix}${prettyName} {`).indent()
-    code.addln(`[OutputType([${name}])]`)
     code.addln('[CmdletBinding(SupportsShouldProcess)]')
     code.addln(`Param(`).indent()
     code.addln(`[Parameter()][PSObject]$Object`).unindent()
