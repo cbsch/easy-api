@@ -97,20 +97,54 @@ const setupDb = async () => {
     }
 
     await login.insert({ name: 'Test User' })
+
+    return db;
 }
 
 const startLoop = () => setTimeout(() => { startLoop() }, 10000); startLoop();
 
+
+const testTextSearch = async (db: pgpLib.IDatabase<{}, any>) => {
+    console.log(JSON.stringify(await db.manyOrNone(`
+SELECT *
+FROM pg_catalog.pg_tables
+WHERE schemaname != 'pg_catalog' AND
+    schemaname != 'information_schema';
+`), undefined, 2))
+
+    await db.none(`
+ALTER TABLE complex ADD COLUMN ts tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', name)) STORED;
+CREATE INDEX ts_idx ON complex USING GIN (ts);
+`)
+
+    await runAndPrint(db, `
+SELECT id, name
+FROM complex
+WHERE ts @@ websearch_to_tsquery('english', 'test2');
+`)
+}
+
+const runAndPrint = async (db: pgpLib.IDatabase<{}, any>, sql: string) => {
+    console.log(JSON.stringify(await db.manyOrNone(sql), undefined, 2))
+}
+
+
 (async () => {
-    await setupDb()
+    const db = await setupDb()
+
 
     const table = getModel<ComplexTable>('complex')
 
     await Promise.all([
         table.insert({ name: 'test' }),
+        table.insert({ name: 'run' }),
+        table.insert({ name: 'sprint' }),
         table.insert({ name: 'test2' }),
         table.insert({ name: 'test3', created_by_id: 1000, modified_by_id: 1000 })
     ])
+
+    await testTextSearch(db)
 
     // const result = await table.find({
     //     filters: [{
@@ -121,13 +155,13 @@ const startLoop = () => setTimeout(() => { startLoop() }, 10000); startLoop();
     //     relations: true
     // })
 
-    const result = await table.find("filters=name=test3;created_by_id=1000")
+    // const result = await table.find("filters=name=test3;created_by_id=1000")
 
-    console.log(JSON.stringify(result, undefined, 2))
+    // console.log(JSON.stringify(result, undefined, 2))
 
-    console.log(JSON.stringify(await table.find({
-        orderby: ['id']
-    }), undefined, 2))
+    // console.log(JSON.stringify(await table.find({
+    //     orderby: ['id']
+    // }), undefined, 2))
 
     console.log('done')
 })()
