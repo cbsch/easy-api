@@ -13,7 +13,8 @@
         "type": "string",
         "reference": null
       }
-    ]
+    ],
+    "prettyName": "Login"
   },
   {
     "name": "audit",
@@ -42,7 +43,8 @@
         "reference": "login",
         "_reference_alias": "login1"
       }
-    ]
+    ],
+    "prettyName": "Audit"
   },
   {
     "name": "complex",
@@ -97,6 +99,7 @@
         "reference": "login",
         "_reference_alias": "login1"
       }
-    ]
+    ],
+    "prettyName": "Complex"
   }
 ]

@@ -170,7 +170,7 @@ function insertFactory<T>(modelName: string, request: Request) {
             } catch (err) {
                 reject(err)
             }
-        }) 
+        })
     }
 }
 

@@ -37,18 +37,20 @@ export interface GeneratedModel<T> {
 
     insert: (data: T) => Promise<T>,
     delete: (id: number) => Promise<T>,
-    find: (query?: string) => Promise<T[]>,
+    find: (query?: string | SelectArgs) => Promise<T[]>,
     update: (data: T) => Promise<T>
 }
 
 
 export interface SelectArgs {
-    columns?: string[],
+    select?: string[],
     relations?: boolean,
     filters?: {
-        column: string, 
-        op: string, 
+        column: string,
+        comparison: string,
         value: string | number | Date }[]
     in?: { column: string, values: string[] | number[] | Date[] },
     orderby?: string[]
+    groupby?: string[]
+    count?: boolean
 }

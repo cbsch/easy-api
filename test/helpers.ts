@@ -1,18 +1,19 @@
-import * as pgpLib from 'pg-promise'
 import * as express from 'express'
+import * as pgpLib from 'pg-promise'
 import modelWrapper, { useRoutes, createSocketServer } from '../src';
 import { auditTable, loginTable, complexTable } from './data.test';
 import { generatedModel as model } from '../src/model';
-import { getDbConfig, startDb, stopDb } from './docker'
+import { startDb, stopDb } from './docker'
 import * as path from 'path'
 import writeClientApi from '../src/integration/ts-client-api/generate-ts-client-api';
+import db from './db'
 
 import * as http from 'http'
 
 import 'chai-http'
 import * as chai from 'chai'
 const should = chai.should()
-import bodyParser = require('body-parser');
+// import bodyParser = require('body-parser');
 import { AddressInfo } from 'net';
 
 
@@ -48,15 +49,7 @@ export async function cleanDb(db: pgpLib.IDatabase<any>) {
 }
 
 // const config = require('../config').config
-const config = getDbConfig()
 
-const pgp = pgpLib();
-export const db = pgp({
-    host: 'localhost',
-    port: config.port,
-    user: config.user,
-    password: config.password
-});
 const modelFactory = modelWrapper(db as any)
 
 export const login = modelFactory(loginTable)
@@ -92,6 +85,8 @@ export const init = () => {
                 await ((model as any)[keys[i]].create())
             }
 
+            await db.query(`INSERT INTO login(id, name) VALUES(100, 'test')`)
+
             let modelList = Object.keys(model).map(k => model[k])
             writeClientApi(modelList, path.join(__dirname, '/gen/api'))
 
@@ -116,7 +111,7 @@ export const stop = async () => {
 }
 
 before(function () {
-    // this.enableTimeouts(false)
+    this.timeout(0)
     return init()
 })
 

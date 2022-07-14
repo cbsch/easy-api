@@ -8,7 +8,7 @@
     "build": "tsc",
     "oldtest": "mocha --reporter spec ",
     "generate": "ts-node test/generate.ts",
-    "test": "mocha test/**/*.test.ts --require ts-node/register --timeout 5000",
+    "test": "mocha test/**/*.test.ts --require ts-node/register --diff=true",
     "prepare": "npm run build",
     "demo": "ts-node demo/demo.ts",
     "dev": "tsnd tools/dev.ts"

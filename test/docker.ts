@@ -1,7 +1,7 @@
 import { promisify } from 'util'
 import { randomBytes } from 'crypto'
 import * as child_process from 'child_process'
-import { db } from './helpers'
+import db from './db'
 const exec = promisify(child_process.exec)
 
 async function checkDocker() {
@@ -40,7 +40,20 @@ interface Config {
     password: string
 }
 
-export const getDbConfig = memoize<Config>(() => {
+// export const getDbConfig = memoize<Config>(() => {
+//     // return {
+//     //     containerName: randomBytes(8).toString("hex"),
+//     //     port: 6543,
+//     //     password: randomBytes(16).toString("hex")
+//     // }
+//     return {
+//         containerName: 'testname',
+//         port: 6543,
+//         user: 'postgres',
+//         password: 'testpass'
+//     }
+// })
+export const getDbConfig = () => {
     // return {
     //     containerName: randomBytes(8).toString("hex"),
     //     port: 6543,
@@ -52,7 +65,7 @@ export const getDbConfig = memoize<Config>(() => {
         user: 'postgres',
         password: 'testpass'
     }
-})
+}
 
 export async function startDb() {
     try {

@@ -1,6 +1,6 @@
 import { Column } from "../../interfaces";
 
-export function generateCreateColumn(def: Column) {
+export default function generateCreateColumn(def: Column) {
     var sqlString = '    '
     if (def.type === "reference") {
         sqlString += `${def.name}_id`

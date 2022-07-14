@@ -1,5 +1,5 @@
 import { Table } from "../../interfaces"
-import { generateCreateColumn } from "./generateCreateColumn"
+import generateCreateColumn from "./generateCreateColumn"
 
 export function generateCreateTable<T>(def: Table<T>): string {
     var sqlText = `CREATE TABLE ${def.name} (\n`

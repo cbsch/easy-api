@@ -1,5 +1,6 @@
 import { Login, Audit } from './data.test';
-import { cleanDb, db, login, url } from './helpers';
+import { cleanDb, login, url } from './helpers';
+import db from './db'
 import 'chai-http'
 import * as chai from 'chai'
 chai.should()

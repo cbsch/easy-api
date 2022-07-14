@@ -3,7 +3,8 @@ const expect = chai.expect
 
 import { testTable, auditTable } from './data.test'
 import model, { queryToObject } from '../src/model';
-import { generateCreateColumn, generateSelect } from '../src/sql/pg';
+import generateSelect from '../src/sql/postgres/generateSelect';
+import generateCreateColumn from '../src/sql/postgres/generateCreateColumn';
 import { IDatabase } from 'pg-promise';
 
 

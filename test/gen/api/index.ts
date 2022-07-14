@@ -4,17 +4,17 @@ import {
     complex,
 } from './model-interfaces'
 import {
-    loginQueryBuilder,
-    auditQueryBuilder,
-    complexQueryBuilder,
+    LoginQueryBuilder,
+    AuditQueryBuilder,
+    ComplexQueryBuilder,
 } from './query-interfaces'
 import generateApi, { ApiOptions } from './generated-api-lib'
 
 export default (options?: ApiOptions) => {
     return {
-        login: generateApi<login, loginQueryBuilder<login>>('login', options),
-        audit: generateApi<audit, auditQueryBuilder<audit>>('audit', options),
-        complex: generateApi<complex, complexQueryBuilder<complex>>('complex', options),
+        login: generateApi<login, LoginQueryBuilder<login>>('login', options),
+        audit: generateApi<audit, AuditQueryBuilder<audit>>('audit', options),
+        complex: generateApi<complex, ComplexQueryBuilder<complex>>('complex', options),
     }
 }
 
@@ -22,8 +22,8 @@ import generateSocketApi, { WSApiOptions } from './generated-ws-api-lib'
 
 export const socketApi = (options?: WSApiOptions) => {
     return {
-        login: generateSocketApi<login, loginQueryBuilder<login>>('login', options),
-        audit: generateSocketApi<audit, auditQueryBuilder<audit>>('audit', options),
-        complex: generateSocketApi<complex, complexQueryBuilder<complex>>('complex', options),
+        login: generateSocketApi<login, LoginQueryBuilder<login>>('login', options),
+        audit: generateSocketApi<audit, AuditQueryBuilder<audit>>('audit', options),
+        complex: generateSocketApi<complex, ComplexQueryBuilder<complex>>('complex', options),
     }
 }

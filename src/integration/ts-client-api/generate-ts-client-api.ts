@@ -42,7 +42,7 @@ export function generateApiCode(models: GeneratedModel<any>[]) {
 
     code.addln('import {').indent()
     for (let def of defs) {
-        code.addln(`${def.name}QueryBuilder,`)
+        code.addln(`${def.prettyName}QueryBuilder,`)
     }
     code.unindent().addln(`} from './query-interfaces'`)
 
@@ -51,7 +51,7 @@ export function generateApiCode(models: GeneratedModel<any>[]) {
     code.addln('export default (options?: ApiOptions) => {').indent()
     code.addln('return {').indent()
     for (let def of defs) {
-        code.addln(`${def.name}: generateApi<${def.name}, ${def.name}QueryBuilder<${def.name}>>('${def.name}', options),`)
+        code.addln(`${def.name}: generateApi<${def.name}, ${def.prettyName}QueryBuilder<${def.name}>>('${def.name}', options),`)
     }
     code.unindent().addln('}')
     code.unindent().addln('}')
@@ -62,7 +62,7 @@ export function generateApiCode(models: GeneratedModel<any>[]) {
     code.addln('export const socketApi = (options?: WSApiOptions) => {').indent()
     code.addln('return {').indent()
     for (let def of defs) {
-        code.addln(`${def.name}: generateSocketApi<${def.name}, ${def.name}QueryBuilder<${def.name}>>('${def.name}', options),`)
+        code.addln(`${def.name}: generateSocketApi<${def.name}, ${def.prettyName}QueryBuilder<${def.name}>>('${def.name}', options),`)
     }
     code.unindent().addln('}')
     code.unindent().addln('}')
@@ -83,30 +83,38 @@ export function generateQueryBuilderInterfaces(models: GeneratedModel<any>[]) {
     code.addln(`import { Filter, OrderBy } from './query'`)
 
     for (let def of defs) {
-        const ifName = `${def.name}QueryBuilder<T>`
-        code.addln(`export interface ${ifName} {`).indent()
+        const interfaceName = `${def.prettyName}QueryBuilder<T>`
+        code.addln(`export interface ${interfaceName} {`).indent()
         code.addln(`filter: {`).indent()
         for (let column of def.columns) {
-            if (column.type === 'reference') {
-                code.addln(`${column.name}_id?: Filter<number, ${ifName}>`)
-            } else {
-                code.addln(`${column.name}?: Filter<${modelTypeToTSType(column.type)}, ${ifName}>`)
-            }
+            const name = column.type === 'reference' ? column.name + "_id" : column.name
+            code.addln(`${name}: Filter<${modelTypeToTSType(column.type)}, ${interfaceName}>`)
         }
         code.unindent().addln(`}`)
 
         code.addln(`orderby: {`).indent()
         for (let column of def.columns) {
-            if (column.type === 'reference') {
-                code.addln(`${column.name}_id?: OrderBy<${ifName}>`)
-            } else {
-                code.addln(`${column.name}?: OrderBy<${ifName}>`)
-            }
+            const name = column.type === 'reference' ? column.name + "_id" : column.name
+            code.addln(`${name}: OrderBy<${interfaceName}>`)
         }
-
         code.unindent().addln('}')
 
-        code.addln(`relations: () => ${ifName}`)
+        code.addln(`groupby: {`).indent()
+        for (let column of def.columns) {
+            const name = column.type === 'reference' ? column.name + "_id" : column.name
+            code.addln(`${name}: () => ${interfaceName}`)
+        }
+        code.unindent().addln('}')
+
+        code.addln(`select: {`).indent()
+        for (let column of def.columns) {
+            const name = column.type === 'reference' ? column.name + "_id" : column.name
+            code.addln(`${name}: () => ${interfaceName}`)
+        }
+        code.unindent().addln('}')
+
+        code.addln(`relations: () => ${interfaceName}`)
+        code.addln(`count: () => ${interfaceName}`)
         code.addln(`toString: () => string`)
         code.addln(`get: () => Promise<T[]>`)
 

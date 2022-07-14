@@ -7,7 +7,14 @@ export interface QueryBuilder<T> {
     orderby: {
         [index: string]: OrderBy<QueryBuilder<T>>
     }
+    groupby: {
+        [index: string]: () => QueryBuilder<T>
+    }
+    select: {
+        [index: string]: () => QueryBuilder<T>
+    }
     relations: () => QueryBuilder<T>
+    count: () => QueryBuilder<T>
     toString: () => string
     get: () => Promise<T[]>
 }
@@ -36,24 +43,51 @@ function orderby<R>(chain: R, sorts: string[], column: string): OrderBy<R> {
     }
 }
 
+function groupby<R>(chain: R, groupby: string[], column: string): () => R {
+    return () => {
+        console.log(`groupby: ${column}`)
+        groupby.push(column)
+        return chain
+    }
+}
+
+function select<R>(chain: R, select: string[], column: string): () => R {
+    return () => {
+        console.log(`select: ${column}`)
+        select.push(column)
+        return chain
+    }
+}
+
 export function queryBuilderFactory<T, QB extends QueryBuilder<T>> (
-        table: Table<T>, 
+        table: Table<T>,
         get?: (query: string) => Promise<T[]>) {
     return (): QB => {
         const filters: string[] = []
         const sorts: string[] = []
+        const groups: string[] = []
+        const selects: string[] = []
         let query: string[] = []
 
         let chain: QB = {
             filter: {},
             orderby: {},
+            groupby: {},
+            select: {},
             relations: () => { query.push(`relations`); return chain },
+            count: () => { query.push(`count`); return chain },
             toString: () => {
-                if (sorts.length > 0) {
-                    query = [`orderby=${sorts.join(';')}`, ...query]
+                if (selects.length > 0) {
+                    query = [`select=${selects.join(';')}`, ...query]
                 }
                 if (filters.length > 0) {
                     query = [`filters=${filters.join(';')}`, ...query]
+                }
+                if (sorts.length > 0) {
+                    query = [`orderby=${sorts.join(';')}`, ...query]
+                }
+                if (groups.length > 0) {
+                    query = [`groupby=${groups.join(';')}`, ...query]
                 }
                 return `?${query.join('&')}`
             }
@@ -65,6 +99,8 @@ export function queryBuilderFactory<T, QB extends QueryBuilder<T>> (
 
         for (let column of table.columns) {
             chain.orderby[column.name] = orderby<QB>(chain, sorts, column.name)
+            chain.groupby[column.name] = groupby<QB>(chain, groups, column.name)
+            chain.select[column.name] = select<QB>(chain, selects, column.name)
 
             switch(column.type) {
                 case "string": {

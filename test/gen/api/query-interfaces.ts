@@ -1,58 +1,103 @@
 import { Filter, OrderBy } from './query'
-export interface loginQueryBuilder<T> {
+export interface LoginQueryBuilder<T> {
     filter: {
-        id?: Filter<number, loginQueryBuilder<T>>
-        name?: Filter<string, loginQueryBuilder<T>>
+        id: Filter<number, LoginQueryBuilder<T>>
+        name: Filter<string, LoginQueryBuilder<T>>
     }
     orderby: {
-        id?: OrderBy<loginQueryBuilder<T>>
-        name?: OrderBy<loginQueryBuilder<T>>
+        id: OrderBy<LoginQueryBuilder<T>>
+        name: OrderBy<LoginQueryBuilder<T>>
     }
-    relations: () => loginQueryBuilder<T>
+    groupby: {
+        id: () => LoginQueryBuilder<T>
+        name: () => LoginQueryBuilder<T>
+    }
+    select: {
+        id: () => LoginQueryBuilder<T>
+        name: () => LoginQueryBuilder<T>
+    }
+    relations: () => LoginQueryBuilder<T>
+    count: () => LoginQueryBuilder<T>
     toString: () => string
     get: () => Promise<T[]>
 }
-export interface auditQueryBuilder<T> {
+export interface AuditQueryBuilder<T> {
     filter: {
-        id?: Filter<number, auditQueryBuilder<T>>
-        name?: Filter<string, auditQueryBuilder<T>>
-        created_by_id?: Filter<number, auditQueryBuilder<T>>
-        modified_by_id?: Filter<number, auditQueryBuilder<T>>
+        id: Filter<number, AuditQueryBuilder<T>>
+        name: Filter<string, AuditQueryBuilder<T>>
+        created_by_id: Filter<number, AuditQueryBuilder<T>>
+        modified_by_id: Filter<number, AuditQueryBuilder<T>>
     }
     orderby: {
-        id?: OrderBy<auditQueryBuilder<T>>
-        name?: OrderBy<auditQueryBuilder<T>>
-        created_by_id?: OrderBy<auditQueryBuilder<T>>
-        modified_by_id?: OrderBy<auditQueryBuilder<T>>
+        id: OrderBy<AuditQueryBuilder<T>>
+        name: OrderBy<AuditQueryBuilder<T>>
+        created_by_id: OrderBy<AuditQueryBuilder<T>>
+        modified_by_id: OrderBy<AuditQueryBuilder<T>>
     }
-    relations: () => auditQueryBuilder<T>
+    groupby: {
+        id: () => AuditQueryBuilder<T>
+        name: () => AuditQueryBuilder<T>
+        created_by_id: () => AuditQueryBuilder<T>
+        modified_by_id: () => AuditQueryBuilder<T>
+    }
+    select: {
+        id: () => AuditQueryBuilder<T>
+        name: () => AuditQueryBuilder<T>
+        created_by_id: () => AuditQueryBuilder<T>
+        modified_by_id: () => AuditQueryBuilder<T>
+    }
+    relations: () => AuditQueryBuilder<T>
+    count: () => AuditQueryBuilder<T>
     toString: () => string
     get: () => Promise<T[]>
 }
-export interface complexQueryBuilder<T> {
+export interface ComplexQueryBuilder<T> {
     filter: {
-        id?: Filter<number, complexQueryBuilder<T>>
-        name?: Filter<string, complexQueryBuilder<T>>
-        value?: Filter<number, complexQueryBuilder<T>>
-        enabled?: Filter<boolean, complexQueryBuilder<T>>
-        timestamp?: Filter<Date, complexQueryBuilder<T>>
-        uuid?: Filter<string, complexQueryBuilder<T>>
-        default_false?: Filter<boolean, complexQueryBuilder<T>>
-        created_by_id?: Filter<number, complexQueryBuilder<T>>
-        modified_by_id?: Filter<number, complexQueryBuilder<T>>
+        id: Filter<number, ComplexQueryBuilder<T>>
+        name: Filter<string, ComplexQueryBuilder<T>>
+        value: Filter<number, ComplexQueryBuilder<T>>
+        enabled: Filter<boolean, ComplexQueryBuilder<T>>
+        timestamp: Filter<Date, ComplexQueryBuilder<T>>
+        uuid: Filter<string, ComplexQueryBuilder<T>>
+        default_false: Filter<boolean, ComplexQueryBuilder<T>>
+        created_by_id: Filter<number, ComplexQueryBuilder<T>>
+        modified_by_id: Filter<number, ComplexQueryBuilder<T>>
     }
     orderby: {
-        id?: OrderBy<complexQueryBuilder<T>>
-        name?: OrderBy<complexQueryBuilder<T>>
-        value?: OrderBy<complexQueryBuilder<T>>
-        enabled?: OrderBy<complexQueryBuilder<T>>
-        timestamp?: OrderBy<complexQueryBuilder<T>>
-        uuid?: OrderBy<complexQueryBuilder<T>>
-        default_false?: OrderBy<complexQueryBuilder<T>>
-        created_by_id?: OrderBy<complexQueryBuilder<T>>
-        modified_by_id?: OrderBy<complexQueryBuilder<T>>
+        id: OrderBy<ComplexQueryBuilder<T>>
+        name: OrderBy<ComplexQueryBuilder<T>>
+        value: OrderBy<ComplexQueryBuilder<T>>
+        enabled: OrderBy<ComplexQueryBuilder<T>>
+        timestamp: OrderBy<ComplexQueryBuilder<T>>
+        uuid: OrderBy<ComplexQueryBuilder<T>>
+        default_false: OrderBy<ComplexQueryBuilder<T>>
+        created_by_id: OrderBy<ComplexQueryBuilder<T>>
+        modified_by_id: OrderBy<ComplexQueryBuilder<T>>
     }
-    relations: () => complexQueryBuilder<T>
+    groupby: {
+        id: () => ComplexQueryBuilder<T>
+        name: () => ComplexQueryBuilder<T>
+        value: () => ComplexQueryBuilder<T>
+        enabled: () => ComplexQueryBuilder<T>
+        timestamp: () => ComplexQueryBuilder<T>
+        uuid: () => ComplexQueryBuilder<T>
+        default_false: () => ComplexQueryBuilder<T>
+        created_by_id: () => ComplexQueryBuilder<T>
+        modified_by_id: () => ComplexQueryBuilder<T>
+    }
+    select: {
+        id: () => ComplexQueryBuilder<T>
+        name: () => ComplexQueryBuilder<T>
+        value: () => ComplexQueryBuilder<T>
+        enabled: () => ComplexQueryBuilder<T>
+        timestamp: () => ComplexQueryBuilder<T>
+        uuid: () => ComplexQueryBuilder<T>
+        default_false: () => ComplexQueryBuilder<T>
+        created_by_id: () => ComplexQueryBuilder<T>
+        modified_by_id: () => ComplexQueryBuilder<T>
+    }
+    relations: () => ComplexQueryBuilder<T>
+    count: () => ComplexQueryBuilder<T>
     toString: () => string
     get: () => Promise<T[]>
 }

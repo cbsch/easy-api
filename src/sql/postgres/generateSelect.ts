@@ -35,10 +35,10 @@ export default function generateSelect<T>(def: Table<T>, args?: SelectArgs): str
     let filterLines: string[] = []
     if (args && args.filters) {
         filterLines = [...args.filters.map(c => {
-            if (!c.op.match(/[<>=]/g)) {
-                throw new Error(`Invalid operator ${c.op}`)
+            if (!c.comparison.match(/[<>=]/g)) {
+                throw new Error(`Invalid operator ${c.comparison}`)
             }
-            return `${def.name}.${c.column} ${c.op} $[${c.column}]`
+            return `${def.name}.${c.column} ${c.comparison} $[${c.column}]`
         })]
     }
 
@@ -56,11 +56,16 @@ export default function generateSelect<T>(def: Table<T>, args?: SelectArgs): str
     /*
         Creating ORDER BY ..
     */
-
     if (args && args.orderby) {
         sqlText += `ORDER BY ${args.orderby.join(', ')}\n`
     }
 
+    /*
+        Creating GROUP BY ..
+    */
+    if (args && args.groupby) {
+        sqlText += `GROUP BY ${args.groupby.join(', ')}\n`
+    }
 
     sqlText += ';'
 
@@ -70,8 +75,8 @@ export default function generateSelect<T>(def: Table<T>, args?: SelectArgs): str
 function getSelectColumns<T>(def: Table<T>, args?: SelectArgs): string {
     let columns
 
-    if (args && args.columns) {
-        columns = args.columns
+    if (args && args.select) {
+        columns = args.select
             .map(s => `${def.name}.${s}`)
             .join(', ')
     } else {
@@ -100,6 +105,10 @@ function getSelectColumns<T>(def: Table<T>, args?: SelectArgs): string {
             columns += ', '
             columns += joinedSelects.join(', ')
         }
+    }
+
+    if (args && args.count) {
+        columns += ', COUNT(*) as count'
     }
 
     return columns

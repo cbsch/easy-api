@@ -50,6 +50,9 @@ export default function model<T>(db: Database<{}>, def: Table<T>): GeneratedMode
 
     debug(`generating table ${def.name} on db ${db}`)
 
+    if (!def.prettyName) {
+        def.prettyName = def.name.charAt(0).toUpperCase() + def.name.slice(1)
+    }
     //def.columns.unshift({name: 'id', type: 'serial', pk: true})
     def.columns = [{name: 'id', type: 'serial', pk: true}, ...def.columns]
 
@@ -235,7 +238,7 @@ export function queryToObject(string?: string): SelectArgs {
 
                 args.filters.push({
                     column: column,
-                    op: op,
+                    comparison: op,
                     value: value
                 })
 
@@ -243,11 +246,23 @@ export function queryToObject(string?: string): SelectArgs {
         }
     }
 
+    if (query.has('count')) {
+        args.count = true
+    }
+
+    if (query.has('select')) {
+        args.select = query.get('select').split(';')
+    }
+
     if (query.has('relations')) {
         args.relations = true
     }
     if (query.has('orderby')) {
         args.orderby = query.get('orderby').split(';')
+    }
+
+    if (query.has('groupby')) {
+        args.groupby = query.get('groupby').split(';')
     }
 
     return args

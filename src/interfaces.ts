@@ -43,12 +43,14 @@ export interface GeneratedModel<T> {
 
 
 export interface SelectArgs {
-    columns?: string[],
+    select?: string[],
     relations?: boolean,
     filters?: {
         column: string,
-        op: string,
+        comparison: string,
         value: string | number | Date }[]
     in?: { column: string, values: string[] | number[] | Date[] },
     orderby?: string[]
+    groupby?: string[]
+    count?: boolean
 }
