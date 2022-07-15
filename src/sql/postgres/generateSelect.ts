@@ -44,7 +44,7 @@ export default function generateSelect<T>(def: Table<T>, args?: SelectArgs): str
 
     if (args && args.in) {
         filterLines = [...filterLines,
-        `${args.in.column} IN (${args.in.values.join(', ')})`
+        `${args.in.column} IN ($[${args.in.column}:list])`
         ]
     }
 
@@ -77,6 +77,7 @@ function getSelectColumns<T>(def: Table<T>, args?: SelectArgs): string {
 
     if (args && args.select) {
         columns = args.select
+            .map(s => s.replace(/[^\w]/g, ""))
             .map(s => `${def.name}.${s}`)
             .join(', ')
     } else {

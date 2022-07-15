@@ -1,9 +1,10 @@
 import * as pgpLib from 'pg-promise'
 import modelWrapper, { GeneratedModel, Table } from '../src';
-import { generatedModel as model, getModel } from '../src/model';
+import { generatedModel as model, getModel, queryToObject } from '../src/model';
 import { IConnectionParameters } from 'pg-promise/typescript/pg-subset';
 import { Filter, OrderBy, QueryBuilder, queryBuilderFactory } from '../src/query'
 import { generateQueryBuilderInterfaces } from '../src/integration/ts-client-api/generate-ts-client-api';
+import generateSelect from '../src/sql/postgres/generateSelect';
 
 
 export interface Login {
@@ -212,8 +213,28 @@ const runAndPrint = async (db: pgpLib.IDatabase<{}, any>, sql: string) => {
     console.log(JSON.stringify(await db.manyOrNone(sql), undefined, 2))
 }
 
+const testSqlGeneration = async (db: pgpLib.IDatabase<{}, any>) => {
+    const table = getModel<ComplexTable>('complex')
+    const query = queryBuilderFactory<ComplexTable, ComplexQueryBuilder<ComplexTable>>(table.definition)()
+    // const queryString = query
+    //     .select.name()
+    //     .select.id()
+    //     .filter.id.in([1000, 1001, 1002])
+    //     .filter.name.eq('test')
+    //     .toString()
+
+    // const queryString = '?filters=id[1000,1001,1002];name=test&select=name;created_by;id,(update complex set name = $$test4$$ where id = 1000)'
+    const queryString = '?filters=id[1000,1001,1002];name=test&select=name;created_by_id;id'
+    const queryObject = queryToObject(queryString)
+    console.log(generateSelect(table.definition, queryObject))
+
+
+    console.log(queryString)
+    console.log(await table.find(queryString))
+}
 
 (async () => {
+    console.log('Starting')
     const db = await setupDb()
 
 
@@ -228,6 +249,9 @@ const runAndPrint = async (db: pgpLib.IDatabase<{}, any>, sql: string) => {
         table.insert({ name: 'test2' }),
         table.insert({ name: 'test3', created_by_id: 1000, modified_by_id: 1000 })
     ])
+
+    await testSqlGeneration(db)
+    return
 
     // await testTextSearch(db)
 

@@ -45,7 +45,6 @@ function orderby<R>(chain: R, sorts: string[], column: string): OrderBy<R> {
 
 function groupby<R>(chain: R, groupby: string[], column: string): () => R {
     return () => {
-        console.log(`groupby: ${column}`)
         groupby.push(column)
         return chain
     }
@@ -53,7 +52,6 @@ function groupby<R>(chain: R, groupby: string[], column: string): () => R {
 
 function select<R>(chain: R, select: string[], column: string): () => R {
     return () => {
-        console.log(`select: ${column}`)
         select.push(column)
         return chain
     }

@@ -194,6 +194,10 @@ function findFactory<T>(db: Database<{}>, def: Table<T>): (query?: string | Sele
                 if (args && args.filters) {
                     args.filters.forEach(a => { obj[a.column] = a.value})
                 }
+                if (args && args.in) {
+                    obj[args.in.column] = args.in.values
+                }
+
                 const result = await db.manyOrNone(sqlText, obj)
                 debug(`found ${result.length} ${def.name}`)
 
@@ -220,25 +224,25 @@ export function queryToObject(string?: string): SelectArgs {
         let filterList = query.get('filters').split(';')
 
         for (const filter of filterList) {
-            let op = filter.match('=') ? '=' :
+            let comparison = filter.match('=') ? '=' :
                 filter.match('>') ? '>' :
                 filter.match('<') ? '<' :
                 filter.match(/\[/) ? '[' : undefined
-            if (!op) { continue }
+            if (!comparison) { continue }
 
-            if (op === '[') {
-                let values = filter.split(op)[1].split(']')[0].split(',')
+            if (comparison === '[') {
+                let values = filter.split(comparison)[1].split(']')[0].split(',')
                 args.in = {
-                    column: filter.split(op)[0],
+                    column: filter.split(comparison)[0],
                     values: values
                 }
             } else {
-                let column = filter.split(op)[0]
-                let value = filter.split(op)[1]
+                let column = filter.split(comparison)[0]
+                let value = filter.split(comparison)[1]
 
                 args.filters.push({
                     column: column,
-                    comparison: op,
+                    comparison: comparison,
                     value: value
                 })
 
