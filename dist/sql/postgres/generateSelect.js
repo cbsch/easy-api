@@ -37,7 +37,7 @@ function generateSelect(def, args) {
         }), true);
     }
     if (args && args.in) {
-        filterLines = __spreadArray(__spreadArray([], filterLines, true), ["".concat(args.in.column, " IN (").concat(args.in.values.join(', '), ")")], false);
+        filterLines = __spreadArray(__spreadArray([], filterLines, true), ["".concat(args.in.column, " IN ($[").concat(args.in.column, ":list])")], false);
     }
     if (filterLines.length > 0) {
         filterText = filterLines.join(' AND ');
@@ -57,6 +57,7 @@ function getSelectColumns(def, args) {
     var columns;
     if (args && args.select) {
         columns = args.select
+            .map(function (s) { return s.replace(/[^\w]/g, ""); })
             .map(function (s) { return "".concat(def.name, ".").concat(s); })
             .join(', ');
     }

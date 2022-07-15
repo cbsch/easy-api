@@ -281,6 +281,9 @@ function findFactory(db, def) {
                         if (args && args.filters) {
                             args.filters.forEach(function (a) { obj[a.column] = a.value; });
                         }
+                        if (args && args.in) {
+                            obj[args.in.column] = args.in.values;
+                        }
                         return [4, db.manyOrNone(sqlText, obj)];
                     case 1:
                         result = _a.sent();
@@ -311,26 +314,26 @@ function queryToObject(string) {
         var filterList = query.get('filters').split(';');
         for (var _i = 0, filterList_1 = filterList; _i < filterList_1.length; _i++) {
             var filter = filterList_1[_i];
-            var op = filter.match('=') ? '=' :
+            var comparison = filter.match('=') ? '=' :
                 filter.match('>') ? '>' :
                     filter.match('<') ? '<' :
                         filter.match(/\[/) ? '[' : undefined;
-            if (!op) {
+            if (!comparison) {
                 continue;
             }
-            if (op === '[') {
-                var values = filter.split(op)[1].split(']')[0].split(',');
+            if (comparison === '[') {
+                var values = filter.split(comparison)[1].split(']')[0].split(',');
                 args.in = {
-                    column: filter.split(op)[0],
+                    column: filter.split(comparison)[0],
                     values: values
                 };
             }
             else {
-                var column = filter.split(op)[0];
-                var value = filter.split(op)[1];
+                var column = filter.split(comparison)[0];
+                var value = filter.split(comparison)[1];
                 args.filters.push({
                     column: column,
-                    comparison: op,
+                    comparison: comparison,
                     value: value
                 });
             }

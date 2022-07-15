@@ -24,14 +24,12 @@ function orderby(chain, sorts, column) {
 }
 function groupby(chain, groupby, column) {
     return function () {
-        console.log("groupby: ".concat(column));
         groupby.push(column);
         return chain;
     };
 }
 function select(chain, select, column) {
     return function () {
-        console.log("select: ".concat(column));
         select.push(column);
         return chain;
     };
