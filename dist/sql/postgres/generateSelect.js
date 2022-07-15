@@ -30,10 +30,10 @@ function generateSelect(def, args) {
     var filterLines = [];
     if (args && args.filters) {
         filterLines = __spreadArray([], args.filters.map(function (c) {
-            if (!c.op.match(/[<>=]/g)) {
-                throw new Error("Invalid operator ".concat(c.op));
+            if (!c.comparison.match(/[<>=]/g)) {
+                throw new Error("Invalid operator ".concat(c.comparison));
             }
-            return "".concat(def.name, ".").concat(c.column, " ").concat(c.op, " $[").concat(c.column, "]");
+            return "".concat(def.name, ".").concat(c.column, " ").concat(c.comparison, " $[").concat(c.column, "]");
         }), true);
     }
     if (args && args.in) {
@@ -46,14 +46,17 @@ function generateSelect(def, args) {
     if (args && args.orderby) {
         sqlText += "ORDER BY ".concat(args.orderby.join(', '), "\n");
     }
+    if (args && args.groupby) {
+        sqlText += "GROUP BY ".concat(args.groupby.join(', '), "\n");
+    }
     sqlText += ';';
     return sqlText;
 }
 exports.default = generateSelect;
 function getSelectColumns(def, args) {
     var columns;
-    if (args && args.columns) {
-        columns = args.columns
+    if (args && args.select) {
+        columns = args.select
             .map(function (s) { return "".concat(def.name, ".").concat(s); })
             .join(', ');
     }
@@ -79,6 +82,9 @@ function getSelectColumns(def, args) {
             columns += ', ';
             columns += joinedSelects_1.join(', ');
         }
+    }
+    if (args && args.count) {
+        columns += ', COUNT(*) as count';
     }
     return columns;
 }

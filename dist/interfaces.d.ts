@@ -36,11 +36,11 @@ export interface GeneratedModel<T> {
     update: (data: T) => Promise<T>;
 }
 export interface SelectArgs {
-    columns?: string[];
+    select?: string[];
     relations?: boolean;
     filters?: {
         column: string;
-        op: string;
+        comparison: string;
         value: string | number | Date;
     }[];
     in?: {
@@ -48,4 +48,6 @@ export interface SelectArgs {
         values: string[] | number[] | Date[];
     };
     orderby?: string[];
+    groupby?: string[];
+    count?: boolean;
 }

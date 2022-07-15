@@ -22,21 +22,46 @@ function orderby(chain, sorts, column) {
         desc: function () { sorts.push("".concat(column, " desc")); return chain; }
     };
 }
+function groupby(chain, groupby, column) {
+    return function () {
+        console.log("groupby: ".concat(column));
+        groupby.push(column);
+        return chain;
+    };
+}
+function select(chain, select, column) {
+    return function () {
+        console.log("select: ".concat(column));
+        select.push(column);
+        return chain;
+    };
+}
 function queryBuilderFactory(table, get) {
     return function () {
         var filters = [];
         var sorts = [];
+        var groups = [];
+        var selects = [];
         var query = [];
         var chain = {
             filter: {},
             orderby: {},
+            groupby: {},
+            select: {},
             relations: function () { query.push("relations"); return chain; },
+            count: function () { query.push("count"); return chain; },
             toString: function () {
-                if (sorts.length > 0) {
-                    query = __spreadArray(["orderby=".concat(sorts.join(';'))], query, true);
+                if (selects.length > 0) {
+                    query = __spreadArray(["select=".concat(selects.join(';'))], query, true);
                 }
                 if (filters.length > 0) {
                     query = __spreadArray(["filters=".concat(filters.join(';'))], query, true);
+                }
+                if (sorts.length > 0) {
+                    query = __spreadArray(["orderby=".concat(sorts.join(';'))], query, true);
+                }
+                if (groups.length > 0) {
+                    query = __spreadArray(["groupby=".concat(groups.join(';'))], query, true);
                 }
                 return "?".concat(query.join('&'));
             }
@@ -47,6 +72,8 @@ function queryBuilderFactory(table, get) {
         for (var _i = 0, _a = table.columns; _i < _a.length; _i++) {
             var column = _a[_i];
             chain.orderby[column.name] = orderby(chain, sorts, column.name);
+            chain.groupby[column.name] = groupby(chain, groups, column.name);
+            chain.select[column.name] = select(chain, selects, column.name);
             switch (column.type) {
                 case "string": {
                     chain.filter[column.name] = filter(chain, filters, column.name);

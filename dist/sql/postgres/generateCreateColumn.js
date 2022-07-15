@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateCreateColumn = void 0;
 function generateCreateColumn(def) {
     var sqlString = '    ';
     if (def.type === "reference") {
@@ -40,5 +39,5 @@ function generateCreateColumn(def) {
     }
     return sqlString;
 }
-exports.generateCreateColumn = generateCreateColumn;
+exports.default = generateCreateColumn;
 //# sourceMappingURL=generateCreateColumn.js.map

@@ -94,6 +94,9 @@ function model(db, def) {
         return generatedModel[def.name];
     }
     debug("generating table ".concat(def.name, " on db ").concat(db));
+    if (!def.prettyName) {
+        def.prettyName = def.name.charAt(0).toUpperCase() + def.name.slice(1);
+    }
     def.columns = __spreadArray([{ name: 'id', type: 'serial', pk: true }], def.columns, true);
     def.columns = def.columns.map(function (c) {
         return __assign(__assign({}, c), { reference: c.reference ? c.reference : c.type === "reference" ? c.name : null });
@@ -327,17 +330,26 @@ function queryToObject(string) {
                 var value = filter.split(op)[1];
                 args.filters.push({
                     column: column,
-                    op: op,
+                    comparison: op,
                     value: value
                 });
             }
         }
+    }
+    if (query.has('count')) {
+        args.count = true;
+    }
+    if (query.has('select')) {
+        args.select = query.get('select').split(';');
     }
     if (query.has('relations')) {
         args.relations = true;
     }
     if (query.has('orderby')) {
         args.orderby = query.get('orderby').split(';');
+    }
+    if (query.has('groupby')) {
+        args.groupby = query.get('groupby').split(';');
     }
     return args;
 }

@@ -6,7 +6,14 @@ export interface QueryBuilder<T> {
     orderby: {
         [index: string]: OrderBy<QueryBuilder<T>>;
     };
+    groupby: {
+        [index: string]: () => QueryBuilder<T>;
+    };
+    select: {
+        [index: string]: () => QueryBuilder<T>;
+    };
     relations: () => QueryBuilder<T>;
+    count: () => QueryBuilder<T>;
     toString: () => string;
     get: () => Promise<T[]>;
 }
