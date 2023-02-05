@@ -103,7 +103,6 @@ function removeFactory<T>(modelName: string, request: Request) {
         return new Promise<T>(async (resolve, reject) => {
             try {
                 const url = modelName
-                console.log(url)
                 const response = await request(url, 'delete', data)
                 resolve(response.data.data)
             } catch (err) {
