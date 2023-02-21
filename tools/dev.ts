@@ -137,7 +137,7 @@ export const complexTable: Table<ComplexTable> = {
 const setupDb = async () => {
     // const config = require('../config').config
     const config: IConnectionParameters = {
-        host: 'localhost',
+        host: '127.0.0.1',
         user: 'postgres',
         password: 'postgres'
     }
@@ -145,177 +145,53 @@ const setupDb = async () => {
     const pgp = pgpLib();
     const db = pgp(config);
 
-    const modelFactory = modelWrapper(db as any)
+    await db.none(`DROP TABLE TestEntity`)
+    await db.none(`
+CREATE TABLE testentity (
+    id SERIAL,
+    name TEXT UNIQUE NOT NULL,
+    created TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+)
+    `)
+    await db.none(`INSERT INTO Testentity(name) VALUES('hello!')`)
 
-    const login = modelFactory(loginTable)
-    const audit = modelFactory(auditTable)
-    const complex = modelFactory(complexTable)
+    await runAndPrint(db, `SELECT * FROM TestEntity`)
 
-    for (var i = 0, keys = Object.keys(model).reverse(); i < keys.length; i++) {
-        await ((model as any)[keys[i]].drop())
-    }
+    await runAndPrint(db, `
+SELECT
+    table_schema || '.' || table_name as show_tables
+FROM
+    information_schema.tables
+WHERE
+    table_type = 'BASE TABLE'
+AND
+    table_schema NOT IN ('pg_catalog', 'information_schema');
+    `)
 
-    for (var i = 0, keys = Object.keys(model); i < keys.length; i++) {
-        await ((model as any)[keys[i]].create())
-    }
+    await runAndPrint(db, `
+SELECT column_name, data_type, character_maximum_length
+FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name ='testentity';
+    `)
 
-    await login.insert({ name: 'Test User' })
+    await runAndPrint(db, `
+SELECT pg_constraint.*
+FROM pg_catalog.pg_constraint
+INNER JOIN pg_catalog.pg_class ON pg_class.oid = pg_constraint.conrelid
+WHERE pg_class.relname = 'testentity'
+`)
 
     return db;
 }
 
 const startLoop = () => setTimeout(() => { startLoop() }, 10000); startLoop();
 
-
-const testTextSearch = async (db: pgpLib.IDatabase<{}, any>) => {
-    console.log(JSON.stringify(await db.manyOrNone(`
-SELECT *
-FROM pg_catalog.pg_tables
-WHERE schemaname != 'pg_catalog' AND
-    schemaname != 'information_schema';
-`), undefined, 2))
-
-//     await db.none(`
-// ALTER TABLE complex ADD COLUMN ts tsvector
-//     GENERATED ALWAYS AS (to_tsvector('english', name)) STORED;
-// CREATE INDEX ts_idx ON complex USING GIN (ts);
-// `)
-
-// Search index on multiple columns
-    await db.none(`
-ALTER TABLE complex ADD COLUMN ts tsvector
-    GENERATED ALWAYS AS
-    (to_tsvector('english', coalesce(name, '')) ||
-    to_tsvector('english', coalesce(description, '')))
-    STORED;
-CREATE INDEX ts_idx ON complex USING GIN (ts);
-`)
-
-// Weighted search index on multiple columns
-    await db.none(`
-ALTER TABLE complex ADD COLUMN ts_weighted tsvector
-    GENERATED ALWAYS AS
-    (setweight(to_tsvector('english', coalesce(name, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(description, '')), 'A'))
-    STORED;
-CREATE INDEX ts_weighted_idx ON complex USING GIN (ts);
-`)
-
-// Query search index
-    await runAndPrint(db, `
-SELECT id, name, description
-FROM complex
-WHERE ts_weighted @@ websearch_to_tsquery('english', 'run');
-`)
-}
-
 const runAndPrint = async (db: pgpLib.IDatabase<{}, any>, sql: string) => {
     console.log(JSON.stringify(await db.manyOrNone(sql), undefined, 2))
-}
-
-const testSqlGeneration = async (db: pgpLib.IDatabase<{}, any>) => {
-    const table = getModel<ComplexTable>('complex')
-    const query = queryBuilderFactory<ComplexTable, ComplexQueryBuilder<ComplexTable>>(table.definition)()
-    // const queryString = query
-    //     .select.name()
-    //     .select.id()
-    //     .filter.id.in([1000, 1001, 1002])
-    //     .filter.name.eq('test')
-    //     .toString()
-
-    // const queryString = '?filters=id[1000,1001,1002];name=test&select=name;created_by;id,(update complex set name = $$test4$$ where id = 1000)'
-    const queryString = '?filters=id[1000,1001,1002];name=test&select=name;created_by_id;id'
-    const queryObject = queryToObject(queryString)
-    console.log(generateSelect(table.definition, queryObject))
-
-
-    console.log(queryString)
-    console.log(await table.find(queryString))
 }
 
 (async () => {
     console.log('Starting')
     const db = await setupDb()
-
-
-    const table = getModel<ComplexTable>('complex')
-
-    await Promise.all([
-        table.insert({ name: 'test' }),
-        table.insert({ name: 'test' }),
-        table.insert({ name: 'test' }),
-        table.insert({ name: 'run' }),
-        table.insert({ name: 'sprint', description: 'running very fast' }),
-        table.insert({ name: 'test2' }),
-        table.insert({ name: 'test3', created_by_id: 1000, modified_by_id: 1000 })
-    ])
-
-    await testSqlGeneration(db)
-    return
-
-    // await testTextSearch(db)
-
-
-    // console.log(JSON.stringify(
-    //     await table.find("filters=name=test3;created_by_id=1000"),
-    //     undefined,
-    //     2
-    // ))
-
-    // console.log(JSON.stringify(
-    //     await table.find("select=name&groupby=name&count"),
-    //     undefined,
-    //     2
-    // ))
-    // console.log(JSON.stringify(
-    //     await table.find({
-    //         filters: [{
-    //             column: 'name',
-    //             comparison: '=',
-    //             value: 'test3'
-    //         }],
-    //         relations: true
-    //     }),
-    //     undefined,
-    //     2
-    // ))
-
-    // console.log(JSON.stringify(
-    //     await table.find({
-    //         filters: [{
-    //             column: 'name',
-    //             comparison: '=',
-    //             value: 'test'
-    //         }],
-    //         count: true,
-    //         groupby: ['name'],
-    //         select: ['name']
-    //     }),
-    //     undefined,
-    //     2
-    // ))
-
-    // console.log(generateQueryBuilderInterfaces([table]))
-    const query = queryBuilderFactory<ComplexTable, ComplexQueryBuilder<ComplexTable>>(table.definition)()
-    // console.log(query.groupby.name().select.name().count().toString())
-
-    console.log(JSON.stringify(
-        await table.find("select=name&groupby=name&count&filters=name=test"),
-        undefined,
-        2
-    ))
-
-    console.log("select=name&filters=name=test&groupby=name&count")
-    console.log(query.groupby.name().select.name().count().toString())
-    console.log(JSON.stringify(
-        await table.find(query.groupby.name().select.name().count().toString()),
-        undefined,
-        2
-    ))
-
-    // console.log(JSON.stringify(await table.find({
-    //     orderby: ['id']
-    // }), undefined, 2))
 
     console.log('done')
 })()
